@@ -1,0 +1,59 @@
+﻿{
+  "dossierId": "dossier_amberlegal_audit_20260331",
+  "runId": "run_2026_03_31_batch_01",
+  "leadKey": "amberlegalgroup.com",
+  "dossierMode": "audit-only",
+  "decisionType": "AUDIT_ONLY",
+  "qualificationRef": "artifacts/qualification/amberlegalgroup.qualification.json",
+  "decisionRef": "artifacts/decision/amberlegalgroup.decision.json",
+  "summary": {
+    "problemSummary": "Сайт юридической фирмы перегружен разрозненными trust blocks, слабой page hierarchy и неоднозначной service framing, но case не был признан безопасно buildable для demo path.",
+    "beforeWeaknesses": [
+      "Ключевые services и expertise areas распределены фрагментарно и требуют сильной manual synthesis.",
+      "Trust layer опирается на неполные и потенциально регуляторно чувствительные claims.",
+      "Observed complexity and confidence do not support a safe buildable demo path."
+    ],
+    "changeSummary": [
+      "Рекомендуется упростить hierarchy practice areas и clearer consultation CTA path.",
+      "Рекомендуется пересобрать trust layer вокруг verified credentials and case framing only.",
+      "No after-state is claimed because this dossier remains audit-only."
+    ]
+  },
+  "preservedConstraints": [
+    "Не выдумывать legal outcomes, testimonials или credentials beyond verified content.",
+    "Не изображать реализованный after-state без preview artifact.",
+    "Не расширять case в buildable demo без новой qualification/decision pass."
+  ],
+  "externalFlowHandling": {
+    "mode": "not-applicable",
+    "notes": "External booking or app flow was not a primary factor in this audit-only case."
+  },
+  "editableScope": [],
+  "findings": [
+    {
+      "findingKey": "service-hierarchy-fragmentation",
+      "scopeLabel": "home + service surfaces",
+      "issueLabel": "offer-clarity",
+      "changeMode": "before-only",
+      "before": {
+        "summary": "Current site spreads core legal offers across dense copy blocks, making the core offer hard to scan and hard to prioritize.",
+        "evidence": [
+          {
+            "uri": "https://artifacts.example.com/evidence/amberlegal/before-home-services.png",
+            "kind": "screenshot",
+            "caption": "Before: fragmented service framing on legal services site."
+          }
+        ]
+      },
+      "notes": "Recommended change is documented in summary, but no implemented after-state exists."
+    }
+  ],
+  "assumptions": [
+    "Further review would be needed before any buildable demo path could be justified."
+  ],
+  "nonGoals": [
+    "Do not imply that a preview or after-state exists.",
+    "Do not fabricate legal outcomes, staff bios or testimonials.",
+    "Do not reinterpret audit recommendations as implemented improvements."
+  ]
+}

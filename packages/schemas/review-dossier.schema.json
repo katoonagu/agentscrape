@@ -1,0 +1,342 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/review-dossier.schema.json",
+  "title": "ReviewDossier",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "dossierMode": {
+      "type": "string",
+      "enum": [
+        "audit-only",
+        "preview-backed-demo"
+      ]
+    },
+    "decisionType": {
+      "type": "string",
+      "enum": [
+        "AUDIT_ONLY",
+        "DEMO_FRONT_ONLY",
+        "DEMO_EDITABLE_CONTENT"
+      ]
+    },
+    "externalFlowMode": {
+      "type": "string",
+      "enum": [
+        "not-applicable",
+        "preserved-integration-point",
+        "preserved-booking-surface",
+        "preserved-cta-path"
+      ]
+    },
+    "editableBlock": {
+      "type": "string",
+      "enum": [
+        "hero",
+        "services",
+        "prices",
+        "team",
+        "reviews",
+        "contacts",
+        "faq",
+        "gallery",
+        "cta"
+      ]
+    },
+    "changeMode": {
+      "type": "string",
+      "enum": [
+        "before-only",
+        "before-after"
+      ]
+    },
+    "evidenceKind": {
+      "type": "string",
+      "enum": [
+        "screenshot",
+        "image",
+        "document"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "kind": {
+          "$ref": "#/definitions/evidenceKind"
+        },
+        "caption": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri",
+        "kind",
+        "caption"
+      ]
+    },
+    "evidenceGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/evidence"
+          }
+        }
+      },
+      "required": [
+        "summary",
+        "evidence"
+      ]
+    }
+  },
+  "properties": {
+    "dossierId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leadKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dossierMode": {
+      "$ref": "#/definitions/dossierMode"
+    },
+    "decisionType": {
+      "$ref": "#/definitions/decisionType"
+    },
+    "qualificationRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decisionRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "redesignBriefRef": {
+      "type": "string"
+    },
+    "demoBuildPlanRef": {
+      "type": "string"
+    },
+    "previewManifestRef": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "problemSummary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "beforeWeaknesses": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "changeSummary": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "problemSummary",
+        "beforeWeaknesses",
+        "changeSummary"
+      ]
+    },
+    "preservedConstraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "externalFlowHandling": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/externalFlowMode"
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "mode",
+        "notes"
+      ]
+    },
+    "editableScope": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/editableBlock"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "findingKey": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scopeLabel": {
+            "type": "string",
+            "minLength": 1
+          },
+          "issueLabel": {
+            "type": "string"
+          },
+          "changeMode": {
+            "$ref": "#/definitions/changeMode"
+          },
+          "before": {
+            "$ref": "#/definitions/evidenceGroup"
+          },
+          "after": {
+            "$ref": "#/definitions/evidenceGroup"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "findingKey",
+          "scopeLabel",
+          "changeMode",
+          "before"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "changeMode": {
+                  "const": "before-after"
+                }
+              },
+              "required": [
+                "changeMode"
+              ]
+            },
+            "then": {
+              "required": [
+                "after"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "nonGoals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "dossierId",
+    "runId",
+    "leadKey",
+    "dossierMode",
+    "decisionType",
+    "qualificationRef",
+    "decisionRef",
+    "summary",
+    "preservedConstraints",
+    "externalFlowHandling",
+    "editableScope",
+    "findings",
+    "nonGoals"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "dossierMode": {
+            "const": "preview-backed-demo"
+          }
+        },
+        "required": [
+          "dossierMode"
+        ]
+      },
+      "then": {
+        "required": [
+          "redesignBriefRef",
+          "demoBuildPlanRef",
+          "previewManifestRef"
+        ],
+        "properties": {
+          "decisionType": {
+            "enum": [
+              "DEMO_FRONT_ONLY",
+              "DEMO_EDITABLE_CONTENT"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "dossierMode": {
+            "const": "audit-only"
+          }
+        },
+        "required": [
+          "dossierMode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decisionType": {
+            "const": "AUDIT_ONLY"
+          }
+        },
+        "not": {
+          "required": [
+            "previewManifestRef"
+          ]
+        }
+      }
+    }
+  ]
+}

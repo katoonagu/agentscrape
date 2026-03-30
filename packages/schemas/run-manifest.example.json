@@ -1,37 +1,51 @@
 ﻿{
-  "runId": "run_2026_03_30_batch_01",
-  "createdAt": "2026-03-30T12:00:00Z",
+  "runId": "run_2026_03_31_batch_01",
+  "createdAt": "2026-03-31T10:15:00Z",
   "workMode": "checkpointed",
-  "runState": "PREVIEW_READY",
+  "runState": "PARTIAL_DONE",
   "input": {
     "kind": "manual-list",
-    "sourceRef": "leads/manual/dental-batch-01.csv",
-    "requestedLeadCount": 2
+    "sourceRef": "leads/manual/mixed-batch-01.csv",
+    "requestedLeadCount": 3
   },
   "leads": [
     {
-      "leadKey": "everwhitedental.com",
-      "leadRef": "packages/schemas/lead.example.json",
-      "currentState": "PREVIEW_READY",
+      "leadKey": "luminoussalon.com",
+      "leadRef": "artifacts/leads/luminoussalon.lead.json",
+      "currentState": "RUN_DONE",
       "decision": "DEMO_FRONT_ONLY",
-      "qualificationRef": "packages/schemas/qualification.example.json",
-      "decisionRef": "packages/schemas/decision.example.json",
-      "previewManifestRef": "packages/schemas/preview-manifest.example.json"
+      "qualificationRef": "artifacts/qualification/luminoussalon.qualification.json",
+      "decisionRef": "artifacts/decision/luminoussalon.decision.json",
+      "designSeedRef": "packages/schemas/design-seed.example.json",
+      "redesignBriefRef": "packages/schemas/redesign-brief.example.json",
+      "demoBuildPlanRef": "packages/schemas/demo-build-plan.example.json",
+      "previewManifestRef": "packages/schemas/preview-manifest.example.json",
+      "reviewDossierRef": "packages/schemas/review-dossier.example.json"
+    },
+    {
+      "leadKey": "amberlegalgroup.com",
+      "leadRef": "artifacts/leads/amberlegalgroup.lead.json",
+      "currentState": "RUN_DONE",
+      "decision": "AUDIT_ONLY",
+      "qualificationRef": "artifacts/qualification/amberlegalgroup.qualification.json",
+      "decisionRef": "artifacts/decision/amberlegalgroup.decision.json",
+      "reviewDossierRef": "packages/schemas/review-dossier.audit-only.example.json",
+      "notes": "Case stayed audit-only because complexity and confidence did not support buildable demo."
     },
     {
       "leadKey": "nosite-law.example",
-      "leadRef": "examples/leads/nosite-law.json",
+      "leadRef": "artifacts/leads/nosite-law.lead.json",
       "currentState": "DECISION_MADE",
       "decision": "SKIP",
-      "decisionRef": "examples/decisions/nosite-law.decision.json",
+      "decisionRef": "artifacts/decision/nosite-law.decision.json",
       "notes": "No public website found; skipped with reason NO_SITE."
     }
   ],
   "counts": {
-    "totalLeads": 2,
-    "withSite": 1,
+    "totalLeads": 3,
+    "withSite": 2,
     "skipped": 1,
-    "auditOnly": 0,
+    "auditOnly": 1,
     "demoFrontOnly": 1,
     "demoEditableContent": 0,
     "previewReady": 1
@@ -39,14 +53,15 @@
   "artifacts": [
     {
       "kind": "preview-bundle",
-      "uri": "https://preview.example.com/runs/run_2026_03_30_batch_01/everwhitedental",
+      "uri": "https://preview.example.com/runs/run_2026_03_31_batch_01/luminoussalon",
       "locationKind": "external-preview",
-      "notes": "Live preview reference for operator review."
+      "notes": "Preview reference for luminoussalon.com only."
     },
     {
       "kind": "review-dossier",
-      "uri": "https://artifacts.example.com/runs/run_2026_03_30_batch_01/review-dossier.pdf",
-      "locationKind": "external-artifact"
+      "uri": "https://artifacts.example.com/runs/run_2026_03_31_batch_01/review-dossiers.zip",
+      "locationKind": "external-artifact",
+      "notes": "Projection bundle for operator review; structured dossier JSON remains source of truth."
     }
   ]
 }

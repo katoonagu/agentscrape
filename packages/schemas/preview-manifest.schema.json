@@ -11,6 +11,42 @@
         "DEMO_FRONT_ONLY",
         "DEMO_EDITABLE_CONTENT"
       ]
+    },
+    "previewStatus": {
+      "type": "string",
+      "enum": [
+        "requested",
+        "building",
+        "ready",
+        "failed",
+        "blocked"
+      ]
+    },
+    "deploymentKind": {
+      "type": "string",
+      "enum": [
+        "external-preview-deployment",
+        "external-artifact"
+      ]
+    },
+    "externalFlowMode": {
+      "type": "string",
+      "enum": [
+        "not-applicable",
+        "preserved-integration-point",
+        "preserved-booking-surface",
+        "preserved-cta-path"
+      ]
+    },
+    "blocker": {
+      "type": "string",
+      "enum": [
+        "APPROVAL_PENDING",
+        "MISSING_REDESIGN_BRIEF",
+        "MISSING_DEMO_BUILD_PLAN",
+        "GENERATION_BOUNDARY_VIOLATION",
+        "PREVIEW_BUILD_FAILED"
+      ]
     }
   },
   "properties": {
@@ -29,25 +65,31 @@
     "decision": {
       "$ref": "#/definitions/previewDecision"
     },
+    "decisionRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "designSeedRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "redesignBriefRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "demoBuildPlanRef": {
+      "type": "string",
+      "minLength": 1
+    },
     "provider": {
       "type": "string",
       "minLength": 1
     },
     "status": {
-      "type": "string",
-      "enum": [
-        "requested",
-        "building",
-        "ready",
-        "failed"
-      ]
+      "$ref": "#/definitions/previewStatus"
     },
     "deploymentKind": {
-      "type": "string",
-      "enum": [
-        "external-preview-deployment",
-        "external-artifact"
-      ]
+      "$ref": "#/definitions/deploymentKind"
     },
     "previewUrl": {
       "type": "string",
@@ -64,6 +106,30 @@
     "buildStoredInRepo": {
       "const": false
     },
+    "externalFlowHandling": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/externalFlowMode"
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "mode",
+        "notes"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/blocker"
+      }
+    },
     "notes": {
       "type": "string"
     }
@@ -73,11 +139,16 @@
     "runId",
     "leadKey",
     "decision",
+    "decisionRef",
+    "designSeedRef",
+    "redesignBriefRef",
+    "demoBuildPlanRef",
     "provider",
     "status",
     "deploymentKind",
     "generatedAt",
-    "buildStoredInRepo"
+    "buildStoredInRepo",
+    "externalFlowHandling"
   ],
   "allOf": [
     {
@@ -94,6 +165,48 @@
       "then": {
         "required": [
           "previewUrl"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "blocked",
+              "failed"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "blockers"
+        ],
+        "properties": {
+          "blockers": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "deploymentKind": {
+            "const": "external-artifact"
+          }
+        },
+        "required": [
+          "deploymentKind"
+        ]
+      },
+      "then": {
+        "required": [
+          "artifactUri"
         ]
       }
     }

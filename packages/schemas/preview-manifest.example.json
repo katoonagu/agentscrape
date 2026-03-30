@@ -1,14 +1,22 @@
 ﻿{
-  "previewId": "preview_everwhite_dental_20260330",
-  "runId": "run_2026_03_30_batch_01",
-  "leadKey": "everwhitedental.com",
+  "previewId": "preview_luminoussalon_20260331",
+  "runId": "run_2026_03_31_batch_01",
+  "leadKey": "luminoussalon.com",
   "decision": "DEMO_FRONT_ONLY",
+  "decisionRef": "artifacts/decision/luminoussalon.decision.json",
+  "designSeedRef": "packages/schemas/design-seed.example.json",
+  "redesignBriefRef": "packages/schemas/redesign-brief.example.json",
+  "demoBuildPlanRef": "packages/schemas/demo-build-plan.example.json",
   "provider": "vercel",
   "status": "ready",
   "deploymentKind": "external-preview-deployment",
-  "previewUrl": "https://preview-everwhitedental.example.vercel.app",
-  "artifactUri": "https://artifacts.example.com/previews/preview_everwhite_dental_20260330.zip",
-  "generatedAt": "2026-03-30T13:05:00Z",
+  "previewUrl": "https://preview-luminoussalon.example.vercel.app",
+  "artifactUri": "https://artifacts.example.com/previews/preview_luminoussalon_20260331.zip",
+  "generatedAt": "2026-03-31T12:05:00Z",
   "buildStoredInRepo": false,
-  "notes": "Preview contains redesigned marketing layer while preserving external booking flow."
+  "externalFlowHandling": {
+    "mode": "preserved-booking-surface",
+    "notes": "Preview redesigns the marketing layer around the existing external booking widget and does not simulate internal booking logic."
+  },
+  "notes": "Preview URL is an external review reference only and does not imply production readiness."
 }

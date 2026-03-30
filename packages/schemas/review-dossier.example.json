@@ -1,0 +1,99 @@
+﻿{
+  "dossierId": "dossier_luminoussalon_preview_20260331",
+  "runId": "run_2026_03_31_batch_01",
+  "leadKey": "luminoussalon.com",
+  "dossierMode": "preview-backed-demo",
+  "decisionType": "DEMO_FRONT_ONLY",
+  "qualificationRef": "artifacts/qualification/luminoussalon.qualification.json",
+  "decisionRef": "artifacts/decision/luminoussalon.decision.json",
+  "redesignBriefRef": "packages/schemas/redesign-brief.example.json",
+  "demoBuildPlanRef": "packages/schemas/demo-build-plan.example.json",
+  "previewManifestRef": "packages/schemas/preview-manifest.example.json",
+  "summary": {
+    "problemSummary": "Текущий сайт терял конверсию из-за слабой service hierarchy, шумного hero и неаккуратного перехода к внешнему booking path.",
+    "beforeWeaknesses": [
+      "Hero не объяснял core offer в первые секунды.",
+      "Gallery и reviews были визуально вторичными, хотя они критичны для trust.",
+      "Booking handoff выглядел как резкий внешний переход без контекста."
+    ],
+    "changeSummary": [
+      "Home page получила более ясную offer hierarchy и более прямой CTA path к внешнему booking widget.",
+      "Gallery и trust signals подняты выше по информационной иерархии.",
+      "Contact/booking surface объясняет preserved external flow вместо имитации внутреннего booking engine."
+    ]
+  },
+  "preservedConstraints": [
+    "Внешний booking widget остается единственной booking destination.",
+    "Editable scope не разрешен для этого case.",
+    "Неподтвержденные цены и staff claims не добавляются."
+  ],
+  "externalFlowHandling": {
+    "mode": "preserved-booking-surface",
+    "notes": "After-state показывает улучшенный front layer и CTA framing, но booking path остается внешним."
+  },
+  "editableScope": [],
+  "findings": [
+    {
+      "findingKey": "home-hero-clarity",
+      "scopeLabel": "home hero",
+      "issueLabel": "offer-clarity",
+      "changeMode": "before-after",
+      "before": {
+        "summary": "До redesign hero был visually noisy и не давал quick read на основные beauty services.",
+        "evidence": [
+          {
+            "uri": "https://artifacts.example.com/evidence/luminoussalon/before-home-hero.png",
+            "kind": "screenshot",
+            "caption": "Before: homepage hero without clear service framing."
+          }
+        ]
+      },
+      "after": {
+        "summary": "Preview hero выстраивает clearer service hierarchy, trust cues и booking CTA around the preserved external flow.",
+        "evidence": [
+          {
+            "uri": "https://artifacts.example.com/evidence/luminoussalon/after-home-hero.png",
+            "kind": "screenshot",
+            "caption": "After: preview hero with clearer offer framing and CTA path."
+          }
+        ]
+      },
+      "notes": "After-state claims only what is visible in preview."
+    },
+    {
+      "findingKey": "booking-handoff",
+      "scopeLabel": "contact / booking surface",
+      "issueLabel": "external-flow-explanation",
+      "changeMode": "before-after",
+      "before": {
+        "summary": "До redesign booking CTA резко переводил пользователя во внешний flow без достаточного context setting.",
+        "evidence": [
+          {
+            "uri": "https://artifacts.example.com/evidence/luminoussalon/before-booking-handoff.png",
+            "kind": "screenshot",
+            "caption": "Before: abrupt handoff to external booking flow."
+          }
+        ]
+      },
+      "after": {
+        "summary": "Preview clearly frames the external booking path as the next step instead of implying solved internal scheduling logic.",
+        "evidence": [
+          {
+            "uri": "https://artifacts.example.com/evidence/luminoussalon/after-booking-handoff.png",
+            "kind": "screenshot",
+            "caption": "After: booking handoff framed as preserved external flow."
+          }
+        ]
+      }
+    }
+  ],
+  "assumptions": [
+    "Gallery captions remain minimal because the source site does not provide consistent caption text.",
+    "Exact price tables stay out of scope until verified content exists."
+  ],
+  "nonGoals": [
+    "Do not build an internal booking engine.",
+    "Do not expand the case into editable CMS behavior.",
+    "Do not claim backend or app logic changes beyond the visible preview."
+  ]
+}

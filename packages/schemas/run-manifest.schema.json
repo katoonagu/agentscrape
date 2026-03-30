@@ -111,7 +111,19 @@
           "decisionRef": {
             "type": "string"
           },
+          "designSeedRef": {
+            "type": "string"
+          },
+          "redesignBriefRef": {
+            "type": "string"
+          },
+          "demoBuildPlanRef": {
+            "type": "string"
+          },
           "previewManifestRef": {
+            "type": "string"
+          },
+          "reviewDossierRef": {
             "type": "string"
           },
           "notes": {
