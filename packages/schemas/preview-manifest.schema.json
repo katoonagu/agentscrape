@@ -1,0 +1,101 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/preview-manifest.schema.json",
+  "title": "PreviewManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "previewDecision": {
+      "type": "string",
+      "enum": [
+        "DEMO_FRONT_ONLY",
+        "DEMO_EDITABLE_CONTENT"
+      ]
+    }
+  },
+  "properties": {
+    "previewId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leadKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision": {
+      "$ref": "#/definitions/previewDecision"
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "requested",
+        "building",
+        "ready",
+        "failed"
+      ]
+    },
+    "deploymentKind": {
+      "type": "string",
+      "enum": [
+        "external-preview-deployment",
+        "external-artifact"
+      ]
+    },
+    "previewUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "artifactUri": {
+      "type": "string",
+      "format": "uri"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "buildStoredInRepo": {
+      "const": false
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "previewId",
+    "runId",
+    "leadKey",
+    "decision",
+    "provider",
+    "status",
+    "deploymentKind",
+    "generatedAt",
+    "buildStoredInRepo"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ready"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "previewUrl"
+        ]
+      }
+    }
+  ]
+}

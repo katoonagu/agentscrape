@@ -1,0 +1,52 @@
+﻿{
+  "runId": "run_2026_03_30_batch_01",
+  "createdAt": "2026-03-30T12:00:00Z",
+  "workMode": "checkpointed",
+  "runState": "PREVIEW_READY",
+  "input": {
+    "kind": "manual-list",
+    "sourceRef": "leads/manual/dental-batch-01.csv",
+    "requestedLeadCount": 2
+  },
+  "leads": [
+    {
+      "leadKey": "everwhitedental.com",
+      "leadRef": "packages/schemas/lead.example.json",
+      "currentState": "PREVIEW_READY",
+      "decision": "DEMO_FRONT_ONLY",
+      "qualificationRef": "packages/schemas/qualification.example.json",
+      "decisionRef": "packages/schemas/decision.example.json",
+      "previewManifestRef": "packages/schemas/preview-manifest.example.json"
+    },
+    {
+      "leadKey": "nosite-law.example",
+      "leadRef": "examples/leads/nosite-law.json",
+      "currentState": "DECISION_MADE",
+      "decision": "SKIP",
+      "decisionRef": "examples/decisions/nosite-law.decision.json",
+      "notes": "No public website found; skipped with reason NO_SITE."
+    }
+  ],
+  "counts": {
+    "totalLeads": 2,
+    "withSite": 1,
+    "skipped": 1,
+    "auditOnly": 0,
+    "demoFrontOnly": 1,
+    "demoEditableContent": 0,
+    "previewReady": 1
+  },
+  "artifacts": [
+    {
+      "kind": "preview-bundle",
+      "uri": "https://preview.example.com/runs/run_2026_03_30_batch_01/everwhitedental",
+      "locationKind": "external-preview",
+      "notes": "Live preview reference for operator review."
+    },
+    {
+      "kind": "review-dossier",
+      "uri": "https://artifacts.example.com/runs/run_2026_03_30_batch_01/review-dossier.pdf",
+      "locationKind": "external-artifact"
+    }
+  ]
+}

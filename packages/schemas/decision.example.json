@@ -1,0 +1,24 @@
+﻿{
+  "decisionId": "decision_everwhite_dental_20260330",
+  "leadKey": "everwhitedental.com",
+  "decidedAt": "2026-03-30T12:26:00Z",
+  "finalDecision": "DEMO_FRONT_ONLY",
+  "reasonCodes": [
+    "EXTERNAL_FLOW_PRESERVED"
+  ],
+  "scores": {
+    "redesignValue": 8,
+    "buildFeasibility": 6,
+    "contentSufficiency": 5,
+    "complexity": 7,
+    "confidence": 7
+  },
+  "requiresHumanApproval": true,
+  "humanApprovalTriggers": [
+    "EXTERNAL_FLOW_CASE"
+  ],
+  "approvalStatus": "approved",
+  "preserveExternalFlow": true,
+  "demoScopeNote": "Разрешен только redesign front layer вокруг внешнего booking flow.",
+  "notes": "Editable content path отклонен из-за hybrid complexity и внешнего flow."
+}

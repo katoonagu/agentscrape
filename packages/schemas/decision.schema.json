@@ -1,0 +1,225 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/decision.schema.json",
+  "title": "Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "pipelineDecision": {
+      "type": "string",
+      "enum": [
+        "SKIP",
+        "AUDIT_ONLY",
+        "DEMO_FRONT_ONLY",
+        "DEMO_EDITABLE_CONTENT"
+      ]
+    },
+    "reasonCode": {
+      "type": "string",
+      "enum": [
+        "NO_SITE",
+        "DUPLICATE_DOMAIN",
+        "LOW_UPLIFT",
+        "LOW_FEASIBILITY",
+        "TOO_COMPLEX",
+        "LOW_CONFIDENCE",
+        "BLOCKED_BY_ANTI_BOT",
+        "EXTERNAL_FLOW_PRESERVED",
+        "ENOUGH_CONTENT_FOR_EDITABLE_DEMO"
+      ]
+    },
+    "approvalTrigger": {
+      "type": "string",
+      "enum": [
+        "EXTERNAL_FLOW_CASE",
+        "CONFLICTING_SCORES",
+        "LOW_CONFIDENCE_BORDERLINE"
+      ]
+    },
+    "approvalStatus": {
+      "type": "string",
+      "enum": [
+        "not-required",
+        "pending",
+        "approved",
+        "rejected"
+      ]
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "editableBlock": {
+      "type": "string",
+      "enum": [
+        "hero",
+        "services",
+        "prices",
+        "team",
+        "reviews",
+        "contacts",
+        "faq",
+        "gallery",
+        "cta"
+      ]
+    }
+  },
+  "properties": {
+    "decisionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leadKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decidedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finalDecision": {
+      "$ref": "#/definitions/pipelineDecision"
+    },
+    "reasonCodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/reasonCode"
+      },
+      "uniqueItems": true
+    },
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "redesignValue": {
+          "$ref": "#/definitions/score"
+        },
+        "buildFeasibility": {
+          "$ref": "#/definitions/score"
+        },
+        "contentSufficiency": {
+          "$ref": "#/definitions/score"
+        },
+        "complexity": {
+          "$ref": "#/definitions/score"
+        },
+        "confidence": {
+          "$ref": "#/definitions/score"
+        }
+      },
+      "required": [
+        "redesignValue",
+        "buildFeasibility",
+        "contentSufficiency",
+        "complexity",
+        "confidence"
+      ]
+    },
+    "requiresHumanApproval": {
+      "type": "boolean"
+    },
+    "humanApprovalTriggers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/approvalTrigger"
+      },
+      "uniqueItems": true
+    },
+    "approvalStatus": {
+      "$ref": "#/definitions/approvalStatus"
+    },
+    "preserveExternalFlow": {
+      "type": "boolean"
+    },
+    "editableBlocks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/editableBlock"
+      },
+      "uniqueItems": true
+    },
+    "demoScopeNote": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "decisionId",
+    "leadKey",
+    "decidedAt",
+    "finalDecision",
+    "reasonCodes",
+    "scores",
+    "requiresHumanApproval",
+    "approvalStatus"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "requiresHumanApproval": {
+            "const": true
+          }
+        },
+        "required": [
+          "requiresHumanApproval"
+        ]
+      },
+      "then": {
+        "required": [
+          "humanApprovalTriggers"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "finalDecision": {
+            "const": "DEMO_EDITABLE_CONTENT"
+          }
+        },
+        "required": [
+          "finalDecision"
+        ]
+      },
+      "then": {
+        "required": [
+          "editableBlocks"
+        ],
+        "properties": {
+          "reasonCodes": {
+            "type": "array",
+            "contains": {
+              "const": "ENOUGH_CONTENT_FOR_EDITABLE_DEMO"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "preserveExternalFlow": {
+            "const": true
+          }
+        },
+        "required": [
+          "preserveExternalFlow"
+        ]
+      },
+      "then": {
+        "properties": {
+          "reasonCodes": {
+            "type": "array",
+            "contains": {
+              "const": "EXTERNAL_FLOW_PRESERVED"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+﻿{
+  "qualificationId": "qual_everwhite_dental_20260330",
+  "leadKey": "everwhitedental.com",
+  "snapshotRef": "packages/schemas/site-snapshot.example.json",
+  "qualifiedAt": "2026-03-30T12:18:00Z",
+  "selectionMode": "STANDARD_3_PAGE",
+  "inspectedSlots": [
+    "HOME",
+    "KEY_SERVICE_1",
+    "KEY_SERVICE_2"
+  ],
+  "evidence": {
+    "homepageFinding": "Главная визуально устарела и перегружена, но clearly communicates core services.",
+    "serviceCoverage": "Есть отдельные страницы по implants и orthodontics, обе коммерчески важны.",
+    "contentNotes": "Контента достаточно для front demo, но prices/reviews coverage неполная для уверенного editable path.",
+    "externalFlowNotes": "Онлайн-запись уводит в внешний booking widget."
+  },
+  "blocking": {
+    "encountered": false,
+    "barrierType": "NONE",
+    "retryAttempted": false,
+    "retrySucceeded": false
+  },
+  "scores": {
+    "redesignValue": 8,
+    "buildFeasibility": 6,
+    "contentSufficiency": 5,
+    "complexity": 7,
+    "confidence": 7
+  },
+  "recommendedDecision": "DEMO_FRONT_ONLY",
+  "reasonCodes": [
+    "EXTERNAL_FLOW_PRESERVED"
+  ],
+  "requiresHumanApproval": true,
+  "humanApprovalTriggers": [
+    "EXTERNAL_FLOW_CASE"
+  ],
+  "notes": "Кейс buildable только при сохранении внешнего booking flow."
+}

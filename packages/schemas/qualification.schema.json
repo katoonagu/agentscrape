@@ -1,0 +1,218 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/qualification.schema.json",
+  "title": "Qualification",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "pipelineDecision": {
+      "type": "string",
+      "enum": [
+        "SKIP",
+        "AUDIT_ONLY",
+        "DEMO_FRONT_ONLY",
+        "DEMO_EDITABLE_CONTENT"
+      ]
+    },
+    "reasonCode": {
+      "type": "string",
+      "enum": [
+        "NO_SITE",
+        "DUPLICATE_DOMAIN",
+        "LOW_UPLIFT",
+        "LOW_FEASIBILITY",
+        "TOO_COMPLEX",
+        "LOW_CONFIDENCE",
+        "BLOCKED_BY_ANTI_BOT",
+        "EXTERNAL_FLOW_PRESERVED",
+        "ENOUGH_CONTENT_FOR_EDITABLE_DEMO"
+      ]
+    },
+    "approvalTrigger": {
+      "type": "string",
+      "enum": [
+        "EXTERNAL_FLOW_CASE",
+        "CONFLICTING_SCORES",
+        "LOW_CONFIDENCE_BORDERLINE"
+      ]
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "inspectedSlot": {
+      "type": "string",
+      "enum": [
+        "HOME",
+        "KEY_SERVICE_1",
+        "KEY_SERVICE_2",
+        "HERO",
+        "SERVICE_SECTION",
+        "CONTACT_BOOKING_SECTION"
+      ]
+    }
+  },
+  "properties": {
+    "qualificationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leadKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshotRef": {
+      "type": "string"
+    },
+    "qualifiedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "selectionMode": {
+      "type": "string",
+      "enum": [
+        "STANDARD_3_PAGE",
+        "ONE_PAGE_VIRTUAL_SECTIONS"
+      ]
+    },
+    "inspectedSlots": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/definitions/inspectedSlot"
+      },
+      "uniqueItems": true
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "homepageFinding": {
+          "type": "string"
+        },
+        "serviceCoverage": {
+          "type": "string"
+        },
+        "contentNotes": {
+          "type": "string"
+        },
+        "externalFlowNotes": {
+          "type": "string"
+        }
+      }
+    },
+    "blocking": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "encountered": {
+          "type": "boolean"
+        },
+        "barrierType": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "ANTI_BOT",
+            "GEO",
+            "CHALLENGE"
+          ]
+        },
+        "retryAttempted": {
+          "type": "boolean"
+        },
+        "retrySucceeded": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "encountered",
+        "barrierType",
+        "retryAttempted",
+        "retrySucceeded"
+      ]
+    },
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "redesignValue": {
+          "$ref": "#/definitions/score"
+        },
+        "buildFeasibility": {
+          "$ref": "#/definitions/score"
+        },
+        "contentSufficiency": {
+          "$ref": "#/definitions/score"
+        },
+        "complexity": {
+          "$ref": "#/definitions/score"
+        },
+        "confidence": {
+          "$ref": "#/definitions/score"
+        }
+      },
+      "required": [
+        "redesignValue",
+        "buildFeasibility",
+        "contentSufficiency",
+        "complexity",
+        "confidence"
+      ]
+    },
+    "recommendedDecision": {
+      "$ref": "#/definitions/pipelineDecision"
+    },
+    "reasonCodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/reasonCode"
+      },
+      "uniqueItems": true
+    },
+    "requiresHumanApproval": {
+      "type": "boolean"
+    },
+    "humanApprovalTriggers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/approvalTrigger"
+      },
+      "uniqueItems": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "qualificationId",
+    "leadKey",
+    "qualifiedAt",
+    "selectionMode",
+    "inspectedSlots",
+    "blocking",
+    "scores",
+    "recommendedDecision",
+    "requiresHumanApproval"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "requiresHumanApproval": {
+            "const": true
+          }
+        },
+        "required": [
+          "requiresHumanApproval"
+        ]
+      },
+      "then": {
+        "required": [
+          "humanApprovalTriggers"
+        ]
+      }
+    }
+  ]
+}

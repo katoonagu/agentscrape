@@ -1,0 +1,14 @@
+﻿{
+  "previewId": "preview_everwhite_dental_20260330",
+  "runId": "run_2026_03_30_batch_01",
+  "leadKey": "everwhitedental.com",
+  "decision": "DEMO_FRONT_ONLY",
+  "provider": "vercel",
+  "status": "ready",
+  "deploymentKind": "external-preview-deployment",
+  "previewUrl": "https://preview-everwhitedental.example.vercel.app",
+  "artifactUri": "https://artifacts.example.com/previews/preview_everwhite_dental_20260330.zip",
+  "generatedAt": "2026-03-30T13:05:00Z",
+  "buildStoredInRepo": false,
+  "notes": "Preview contains redesigned marketing layer while preserving external booking flow."
+}

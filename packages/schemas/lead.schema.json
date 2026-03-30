@@ -1,0 +1,195 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/lead.schema.json",
+  "title": "Lead",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "pipelineState": {
+      "type": "string",
+      "enum": [
+        "RUN_CREATED",
+        "INPUT_SELECTED",
+        "INGESTING",
+        "NORMALIZED",
+        "DEDUPED_BY_DOMAIN",
+        "QUALIFYING",
+        "DECISION_MADE",
+        "GENERATING_DEMO",
+        "INTERNAL_QA",
+        "AWAITING_APPROVAL",
+        "DEPLOYING_PREVIEW",
+        "PREVIEW_READY",
+        "GENERATING_REVIEW",
+        "RUN_DONE",
+        "FAILED_RETRYABLE",
+        "FAILED_FINAL",
+        "CANCELLED",
+        "PARTIAL_DONE"
+      ]
+    },
+    "reasonCode": {
+      "type": "string",
+      "enum": [
+        "NO_SITE",
+        "DUPLICATE_DOMAIN",
+        "LOW_UPLIFT",
+        "LOW_FEASIBILITY",
+        "TOO_COMPLEX",
+        "LOW_CONFIDENCE",
+        "BLOCKED_BY_ANTI_BOT",
+        "EXTERNAL_FLOW_PRESERVED",
+        "ENOUGH_CONTENT_FOR_EDITABLE_DEMO"
+      ]
+    }
+  },
+  "properties": {
+    "leadId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leadKey": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Canonical eTLD+1 lead key"
+    },
+    "businessName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "canonicalDomain": {
+      "type": "string",
+      "minLength": 1
+    },
+    "siteUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "hasSite": {
+      "type": "boolean"
+    },
+    "subdomainDisposition": {
+      "type": "string",
+      "enum": [
+        "PRIMARY_ENTITY",
+        "SEPARATE_PRODUCT_OR_BUSINESS"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "scrape",
+            "manual-list"
+          ]
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "importedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "rawLabel": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "importedAt"
+      ]
+    },
+    "currentState": {
+      "$ref": "#/definitions/pipelineState"
+    },
+    "reasonCodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/reasonCode"
+      },
+      "uniqueItems": true
+    },
+    "duplicateOfLeadKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "leadId",
+    "leadKey",
+    "businessName",
+    "canonicalDomain",
+    "hasSite",
+    "source"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "hasSite": {
+            "const": true
+          }
+        },
+        "required": [
+          "hasSite"
+        ]
+      },
+      "then": {
+        "required": [
+          "siteUrl"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "hasSite": {
+            "const": false
+          }
+        },
+        "required": [
+          "hasSite"
+        ]
+      },
+      "then": {
+        "properties": {
+          "reasonCodes": {
+            "type": "array",
+            "contains": {
+              "const": "NO_SITE"
+            }
+          }
+        },
+        "required": [
+          "reasonCodes"
+        ]
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "duplicateOfLeadKey"
+        ]
+      },
+      "then": {
+        "properties": {
+          "reasonCodes": {
+            "type": "array",
+            "contains": {
+              "const": "DUPLICATE_DOMAIN"
+            }
+          }
+        },
+        "required": [
+          "reasonCodes"
+        ]
+      }
+    }
+  ]
+}

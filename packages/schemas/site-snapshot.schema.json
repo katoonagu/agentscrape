@@ -1,0 +1,125 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/site-snapshot.schema.json",
+  "title": "SiteSnapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "selectionMode": {
+      "type": "string",
+      "enum": [
+        "STANDARD_3_PAGE",
+        "ONE_PAGE_VIRTUAL_SECTIONS"
+      ]
+    },
+    "accessBarrier": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "ANTI_BOT",
+        "GEO",
+        "CHALLENGE"
+      ]
+    },
+    "entrySlot": {
+      "type": "string",
+      "enum": [
+        "HOME",
+        "KEY_SERVICE_1",
+        "KEY_SERVICE_2",
+        "HERO",
+        "SERVICE_SECTION",
+        "CONTACT_BOOKING_SECTION"
+      ]
+    }
+  },
+  "properties": {
+    "snapshotId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leadKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "siteUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "selectionMode": {
+      "$ref": "#/definitions/selectionMode"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "slot": {
+            "$ref": "#/definitions/entrySlot"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "url",
+              "virtual-section"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "slot",
+          "kind",
+          "label"
+        ]
+      }
+    },
+    "accessBarrier": {
+      "$ref": "#/definitions/accessBarrier"
+    },
+    "retryAttemptCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "externalFlow": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "EXTERNAL_BOOKING_OR_WIDGET"
+      ]
+    },
+    "accessNotes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "snapshotId",
+    "leadKey",
+    "siteUrl",
+    "capturedAt",
+    "selectionMode",
+    "entries",
+    "accessBarrier",
+    "externalFlow"
+  ]
+}

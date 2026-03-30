@@ -1,0 +1,17 @@
+﻿{
+  "leadId": "lead_everwhite_dental",
+  "leadKey": "everwhitedental.com",
+  "businessName": "Everwhite Dental Clinic",
+  "canonicalDomain": "everwhitedental.com",
+  "siteUrl": "https://www.everwhitedental.com/",
+  "hasSite": true,
+  "subdomainDisposition": "PRIMARY_ENTITY",
+  "source": {
+    "kind": "manual-list",
+    "sourceRef": "leads/manual/dental-batch-01.csv#row-12",
+    "importedAt": "2026-03-30T12:00:00Z",
+    "rawLabel": "Everwhite Dental Clinic | https://www.everwhitedental.com/"
+  },
+  "currentState": "QUALIFYING",
+  "reasonCodes": []
+}
