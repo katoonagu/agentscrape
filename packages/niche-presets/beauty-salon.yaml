@@ -1,0 +1,90 @@
+﻿id: beauty-salon
+label: Beauty Salon
+version: "1.0.0"
+status: active
+applicability:
+  positive_signals:
+    - "beauty salon"
+    - "hair salon"
+    - "lashes or brows"
+    - "nails"
+    - "styling and booking-led services"
+  negative_signals:
+    - "medical-grade clinical treatment positioning"
+    - "heavy legal or document-driven trust framing"
+    - "complex member cabinet or ecommerce-first flow"
+  typical_offers:
+    - "hair coloring"
+    - "styling"
+    - "nail services"
+    - "lashes and brows"
+    - "beauty packages"
+  site_clues:
+    - "strong gallery usage"
+    - "before-after visuals"
+    - "staff stylist cards"
+    - "booking-focused CTA"
+taste:
+  design_variance: 7
+  motion_intensity: 5
+  visual_density: 4
+copy:
+  tone: "sensory, confident, warm and polished"
+  cta_bias: "book now or book your visit"
+  trust_emphasis: "results, stylist expertise, social proof"
+  headline_style: "transformational and benefit-led"
+layout:
+  required_sections:
+    - hero
+    - services
+    - gallery
+    - reviews
+    - contacts
+    - cta
+  optional_sections:
+    - prices
+    - team
+    - faq
+  ordering_bias:
+    - hero
+    - services
+    - gallery
+    - reviews
+    - team
+    - contacts
+    - cta
+qualification:
+  complexity_bias: "usually brochure/service-friendly unless appointments are deeply embedded into external systems"
+  editable_content_default: prefer-when-qualified
+  external_flow_policy: preserve-and-bias-front-only
+editingScope:
+  allowed_editable_blocks:
+    - hero
+    - services
+    - prices
+    - team
+    - reviews
+    - contacts
+    - faq
+    - gallery
+    - cta
+designSeed:
+  visual_direction:
+    - "elevated lifestyle editorial feel"
+    - "soft premium service presentation"
+  palette_direction:
+    - "powdery neutrals or cosmetic-inspired accents"
+    - "controlled warmth over harsh contrast"
+  typography_direction:
+    - "expressive display paired with clean body text"
+    - "feminine or boutique leaning but still readable"
+  imagery_direction:
+    - "close-up service imagery"
+    - "real staff and studio atmosphere"
+approvalHints:
+  manual_review_required_when:
+    - "site mixes salon services with clinic-grade procedures"
+    - "existing brand is intentionally minimal or masculine and preset would over-soften it"
+  do_not_auto_apply_when:
+    - "lead behaves more like a medical aesthetics clinic than a salon"
+    - "there is no clear beauty-service evidence beyond generic wellness wording"

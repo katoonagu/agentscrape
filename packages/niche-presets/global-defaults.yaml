@@ -1,0 +1,76 @@
+﻿id: global-defaults
+label: Global Defaults
+version: "1.0.0"
+status: active
+applicability:
+  positive_signals:
+    - "Используется как baseline для всех website leads"
+  negative_signals:
+    - "Не должен заменять подтвержденный niche preset"
+  typical_offers:
+    - "general service inquiry"
+    - "consultation request"
+  site_clues:
+    - "service-led marketing site"
+    - "brochure or content-heavy website"
+taste:
+  design_variance: 5
+  motion_intensity: 3
+  visual_density: 5
+copy:
+  tone: "ясный, уверенный, без перегретых обещаний"
+  cta_bias: "consultation or inquiry"
+  trust_emphasis: "clarity, relevance, basic proof"
+  headline_style: "service-first and benefit-led"
+layout:
+  required_sections:
+    - hero
+    - services
+    - reviews
+    - contacts
+    - cta
+  optional_sections:
+    - prices
+    - team
+    - faq
+    - gallery
+  ordering_bias:
+    - hero
+    - services
+    - reviews
+    - contacts
+    - cta
+qualification:
+  complexity_bias: "neutral baseline; prefer brochure/service patterns"
+  editable_content_default: allow-if-qualified
+  external_flow_policy: preserve-front-layer
+editingScope:
+  allowed_editable_blocks:
+    - hero
+    - services
+    - prices
+    - team
+    - reviews
+    - contacts
+    - faq
+    - gallery
+    - cta
+designSeed:
+  visual_direction:
+    - "clean modern service-site baseline"
+    - "strong hierarchy before ornament"
+  palette_direction:
+    - "neutral base with one controlled accent"
+    - "avoid noisy multicolor mixes"
+  typography_direction:
+    - "readable high-contrast type hierarchy"
+    - "one expressive display direction max"
+  imagery_direction:
+    - "real business context before abstract decoration"
+    - "use focused, non-generic supporting imagery"
+approvalHints:
+  manual_review_required_when:
+    - "no clear niche fit is established"
+    - "current brand cues and operator references materially conflict"
+  do_not_auto_apply_when:
+    - "lead clearly matches a stronger niche preset"

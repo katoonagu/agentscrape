@@ -1,0 +1,87 @@
+﻿id: legal-services
+label: Legal Services
+version: "1.0.0"
+status: active
+applicability:
+  positive_signals:
+    - "law firm"
+    - "attorney"
+    - "legal practice"
+    - "consultation-driven legal services"
+    - "case-based expertise pages"
+  negative_signals:
+    - "consumer ecommerce flow"
+    - "document automation platform as primary product"
+    - "heavily lifestyle or beauty-oriented visual language"
+  typical_offers:
+    - "business law"
+    - "family law"
+    - "immigration services"
+    - "litigation"
+    - "contract review"
+  site_clues:
+    - "practice area pages"
+    - "attorney bios"
+    - "case or testimonial proof"
+    - "consultation request CTA"
+taste:
+  design_variance: 3
+  motion_intensity: 1
+  visual_density: 6
+copy:
+  tone: "authoritative, precise, calm"
+  cta_bias: "request consultation"
+  trust_emphasis: "credibility, specialization, case confidence, professional seriousness"
+  headline_style: "authority-first and specificity-driven"
+layout:
+  required_sections:
+    - hero
+    - services
+    - team
+    - reviews
+    - contacts
+    - cta
+  optional_sections:
+    - faq
+    - prices
+  ordering_bias:
+    - hero
+    - services
+    - team
+    - reviews
+    - faq
+    - contacts
+    - cta
+qualification:
+  complexity_bias: "generally brochure/content-friendly unless lead is actually a legal SaaS or document portal"
+  editable_content_default: allow-if-qualified
+  external_flow_policy: preserve-and-require-approval
+editingScope:
+  allowed_editable_blocks:
+    - hero
+    - services
+    - team
+    - reviews
+    - contacts
+    - faq
+    - cta
+designSeed:
+  visual_direction:
+    - "restrained authority and professional clarity"
+    - "structured hierarchy over expressive flourish"
+  palette_direction:
+    - "deep neutrals with disciplined accent use"
+    - "avoid pastel or playful cosmetic palettes"
+  typography_direction:
+    - "serious high-contrast editorial or sober sans pairing"
+    - "emphasis on readability and trust"
+  imagery_direction:
+    - "professional portraits and contextual office imagery"
+    - "avoid generic courthouse clichés as the only visual idea"
+approvalHints:
+  manual_review_required_when:
+    - "site positioning is split between law practice and software/service platform"
+    - "operator wants a more aggressive visual departure than trust-sensitive default"
+  do_not_auto_apply_when:
+    - "lead is primarily legal-tech product rather than service firm"
+    - "service clues are too weak to distinguish legal practice from generic consulting"

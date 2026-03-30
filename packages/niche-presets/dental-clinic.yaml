@@ -1,0 +1,89 @@
+﻿id: dental-clinic
+label: Dental Clinic
+version: "1.0.0"
+status: active
+applicability:
+  positive_signals:
+    - "dental clinic"
+    - "dentistry"
+    - "implantology"
+    - "orthodontics"
+    - "teeth cleaning or whitening"
+  negative_signals:
+    - "beauty-first boutique framing without clinical trust cues"
+    - "full hospital or multi-department healthcare portal"
+    - "complex patient cabinet as core product"
+  typical_offers:
+    - "implants"
+    - "braces or aligners"
+    - "whitening"
+    - "checkups"
+    - "family dentistry"
+  site_clues:
+    - "doctor profiles"
+    - "procedure pages"
+    - "insurance or financing explanations"
+    - "booking or consultation CTA"
+taste:
+  design_variance: 4
+  motion_intensity: 2
+  visual_density: 5
+copy:
+  tone: "clear, reassuring, clinically credible"
+  cta_bias: "book consultation or schedule visit"
+  trust_emphasis: "doctor expertise, safety, outcomes, patient confidence"
+  headline_style: "outcome-led with strong procedural clarity"
+layout:
+  required_sections:
+    - hero
+    - services
+    - team
+    - reviews
+    - contacts
+    - cta
+  optional_sections:
+    - prices
+    - faq
+    - gallery
+  ordering_bias:
+    - hero
+    - services
+    - team
+    - reviews
+    - faq
+    - contacts
+    - cta
+qualification:
+  complexity_bias: "prefer medium-complexity service sites; raise caution when portal or insurance workflows dominate"
+  editable_content_default: allow-if-qualified
+  external_flow_policy: preserve-and-require-approval
+editingScope:
+  allowed_editable_blocks:
+    - hero
+    - services
+    - prices
+    - team
+    - reviews
+    - contacts
+    - faq
+    - cta
+designSeed:
+  visual_direction:
+    - "clinical trust with modern calmness"
+    - "high legibility and procedural clarity"
+  palette_direction:
+    - "clean light neutrals with controlled blue or teal accents"
+    - "avoid overly playful cosmetic palettes"
+  typography_direction:
+    - "conservative, highly readable sans hierarchy"
+    - "minimal decorative contrast"
+  imagery_direction:
+    - "real doctors, clinic interiors, patient reassurance moments"
+    - "avoid stock-smile overload without service context"
+approvalHints:
+  manual_review_required_when:
+    - "site strongly mixes cosmetic beauty language with medical positioning"
+    - "external booking or patient flow is core to the conversion path"
+  do_not_auto_apply_when:
+    - "lead is actually multi-specialty healthcare or hospital-grade portal"
+    - "dental signals are weak and service mix points to broader wellness or beauty"
