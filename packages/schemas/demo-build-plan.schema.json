@@ -1,0 +1,357 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/demo-build-plan.schema.json",
+  "title": "DemoBuildPlan",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "decisionType": {
+      "type": "string",
+      "enum": ["DEMO_FRONT_ONLY", "DEMO_EDITABLE_CONTENT"]
+    },
+    "generationMode": {
+      "type": "string",
+      "enum": ["front-only", "limited-editable-content"]
+    },
+    "pagePlanType": {
+      "type": "string",
+      "enum": ["multi-page-limited", "single-page-sections"]
+    },
+    "pageType": {
+      "type": "string",
+      "enum": ["home", "key-service", "contact-booking", "single-page"]
+    },
+    "editableBlock": {
+      "type": "string",
+      "enum": [
+        "hero",
+        "services",
+        "prices",
+        "team",
+        "reviews",
+        "contacts",
+        "faq",
+        "gallery",
+        "cta"
+      ]
+    },
+    "externalFlowMode": {
+      "type": "string",
+      "enum": [
+        "not-applicable",
+        "preserved-integration-point",
+        "preserved-booking-surface",
+        "preserved-cta-path"
+      ]
+    },
+    "contentSourceType": {
+      "type": "string",
+      "enum": [
+        "verified-current-site",
+        "qualification-finding",
+        "preset-direction",
+        "operator-approved-note",
+        "placeholder-assumption"
+      ]
+    },
+    "gapType": {
+      "type": "string",
+      "enum": [
+        "copy-gap",
+        "price-gap",
+        "staff-gap",
+        "social-proof-gap",
+        "regulatory-gap",
+        "image-gap",
+        "service-detail-gap",
+        "other"
+      ]
+    },
+    "stopReason": {
+      "type": "string",
+      "enum": [
+        "MISSING_GENERATION_ELIGIBILITY",
+        "MISSING_REQUIRED_INPUT",
+        "EDITABLE_SCOPE_EXCEEDED",
+        "EXTERNAL_FLOW_AMBIGUOUS",
+        "PAGE_SCOPE_NOT_DEFENSIBLE",
+        "CONTENT_GAP_MATERIAL",
+        "LOW_SEED_CONFIDENCE",
+        "DIRECTION_CONFLICT_WITH_SITE_REALITY",
+        "COMPLEXITY_BORDERLINE"
+      ]
+    }
+  },
+  "properties": {
+    "buildPlanId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leadKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decisionType": {
+      "$ref": "#/definitions/decisionType"
+    },
+    "generationMode": {
+      "$ref": "#/definitions/generationMode"
+    },
+    "designSeedRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "redesignBriefRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pagePlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "planType": {
+          "$ref": "#/definitions/pagePlanType"
+        },
+        "pages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageKey": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pageType": {
+                "$ref": "#/definitions/pageType"
+              },
+              "sourceBasis": {
+                "type": "string",
+                "minLength": 1
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "required": ["pageKey", "pageType", "sourceBasis", "required"]
+          }
+        },
+        "rationale": {
+          "type": "string"
+        }
+      },
+      "required": ["planType", "pages"]
+    },
+    "sectionPlan": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageKey": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sections": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "editableBlocks": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/definitions/editableBlock"
+            }
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": ["pageKey", "sections"]
+      }
+    },
+    "contentSources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scopeRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sourceType": {
+            "$ref": "#/definitions/contentSourceType"
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["scopeRef", "sourceType", "notes"]
+      }
+    },
+    "editableScope": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/editableBlock"
+      }
+    },
+    "externalFlowHandling": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/externalFlowMode"
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["mode", "notes"]
+    },
+    "placeholders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scopeRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "gapType": {
+            "$ref": "#/definitions/gapType"
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 1
+          },
+          "approvalRequired": {
+            "type": "boolean"
+          }
+        },
+        "required": ["scopeRef", "gapType", "notes", "approvalRequired"]
+      }
+    },
+    "approvalRequired": {
+      "type": "boolean"
+    },
+    "generationReady": {
+      "type": "boolean"
+    },
+    "stopReasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/stopReason"
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "buildPlanId",
+    "leadKey",
+    "decisionType",
+    "generationMode",
+    "designSeedRef",
+    "redesignBriefRef",
+    "pagePlan",
+    "sectionPlan",
+    "contentSources",
+    "editableScope",
+    "externalFlowHandling",
+    "approvalRequired",
+    "generationReady",
+    "stopReasons"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decisionType": {
+            "const": "DEMO_FRONT_ONLY"
+          }
+        },
+        "required": ["decisionType"]
+      },
+      "then": {
+        "properties": {
+          "generationMode": {
+            "const": "front-only"
+          },
+          "editableScope": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decisionType": {
+            "const": "DEMO_EDITABLE_CONTENT"
+          }
+        },
+        "required": ["decisionType"]
+      },
+      "then": {
+        "properties": {
+          "generationMode": {
+            "const": "limited-editable-content"
+          },
+          "editableScope": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "generationReady": {
+            "const": false
+          }
+        },
+        "required": ["generationReady"]
+      },
+      "then": {
+        "properties": {
+          "stopReasons": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "generationReady": {
+            "const": true
+          }
+        },
+        "required": ["generationReady"]
+      },
+      "then": {
+        "properties": {
+          "stopReasons": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ]
+}

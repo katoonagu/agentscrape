@@ -1,0 +1,81 @@
+﻿{
+  "seedId": "seed-luminoussalon-com-v1",
+  "leadKey": "luminoussalon.com",
+  "primaryPresetId": "beauty-salon",
+  "seedConfidence": "medium",
+  "sourceSummary": {
+    "appliedLayers": [
+      "global-defaults",
+      "niche-preset",
+      "existing-brand"
+    ],
+    "brandCluesStrength": "medium",
+    "operatorReferencesUsed": false,
+    "notes": [
+      "Текущий сайт уже использует мягкие нейтральные цвета и студийные фотографии.",
+      "Внешний booking widget должен остаться конечной точкой CTA."
+    ]
+  },
+  "tasteProfile": {
+    "designVariance": 7,
+    "motionIntensity": 4,
+    "visualDensity": 4
+  },
+  "copyProfile": {
+    "tone": "warm, polished and conversion-aware",
+    "ctaBias": "book your visit",
+    "trustEmphasis": "stylist expertise and recent client proof",
+    "headlineStyle": "benefit-led with clear service framing"
+  },
+  "layoutProfile": {
+    "requiredSections": [
+      "hero",
+      "services",
+      "gallery",
+      "reviews",
+      "contacts",
+      "cta"
+    ],
+    "optionalSections": [
+      "team",
+      "faq"
+    ],
+    "orderingBias": [
+      "hero",
+      "services",
+      "gallery",
+      "reviews",
+      "contacts",
+      "cta"
+    ]
+  },
+  "visualDirection": [
+    "soft premium service presentation",
+    "editorial but conversion-aware composition"
+  ],
+  "paletteDirection": [
+    "powdery neutrals with one cosmetic accent",
+    "controlled warmth over hard contrast"
+  ],
+  "typographyDirection": [
+    "expressive display paired with restrained body text",
+    "avoid loud luxury clichés"
+  ],
+  "imageryDirection": [
+    "real salon atmosphere",
+    "close-up service imagery instead of generic stock beauty shots"
+  ],
+  "preservedConstraints": [
+    "Preserve the existing external booking widget as the booking destination.",
+    "Do not introduce exact prices that are not verified on the current site."
+  ],
+  "editableScope": [],
+  "riskFlags": [
+    "external-flow-preserved",
+    "prices-not-fully-verified"
+  ],
+  "requiresHumanApproval": true,
+  "assumptions": [
+    "Team section may reuse staff names only if they remain visible on the source site."
+  ]
+}

@@ -1,0 +1,111 @@
+﻿{
+  "buildPlanId": "build-plan-luminoussalon-com-v1",
+  "leadKey": "luminoussalon.com",
+  "decisionType": "DEMO_FRONT_ONLY",
+  "generationMode": "front-only",
+  "designSeedRef": "seed-luminoussalon-com-v1",
+  "redesignBriefRef": "brief-luminoussalon-com-v1",
+  "pagePlan": {
+    "planType": "multi-page-limited",
+    "pages": [
+      {
+        "pageKey": "home",
+        "pageType": "home",
+        "sourceBasis": "Qualification подтвердил homepage как основной surface с самым высоким redesign uplift.",
+        "required": true
+      },
+      {
+        "pageKey": "hair-services",
+        "pageType": "key-service",
+        "sourceBasis": "Одна ключевая service page нужна для показа offer clarity без избыточного page expansion.",
+        "required": true
+      },
+      {
+        "pageKey": "contact-booking",
+        "pageType": "contact-booking",
+        "sourceBasis": "Case требует явного preserved booking handoff и понятного contact surface.",
+        "required": true
+      }
+    ],
+    "rationale": "Page scope ограничен defensible baseline: home, ключевая service page и preserved booking surface."
+  },
+  "sectionPlan": [
+    {
+      "pageKey": "home",
+      "sections": [
+        "hero",
+        "services overview",
+        "gallery preview",
+        "reviews",
+        "cta"
+      ],
+      "notes": "Главная страница должна собирать offer clarity и booking intent без нового backend поведения."
+    },
+    {
+      "pageKey": "hair-services",
+      "sections": [
+        "service intro",
+        "signature services",
+        "visual proof",
+        "cta"
+      ],
+      "notes": "Не показывать неподтвержденные цены и не обещать результаты, которых нет в source content."
+    },
+    {
+      "pageKey": "contact-booking",
+      "sections": [
+        "contact details",
+        "studio info",
+        "booking handoff"
+      ],
+      "notes": "Booking handoff explicitly points to existing external widget."
+    }
+  ],
+  "contentSources": [
+    {
+      "scopeRef": "home.hero",
+      "sourceType": "verified-current-site",
+      "notes": "Использовать проверенное описание salon offer и текущий CTA language как baseline."
+    },
+    {
+      "scopeRef": "hair-services",
+      "sourceType": "qualification-finding",
+      "notes": "Qualification выделил this service cluster как наиболее коммерчески важный."
+    },
+    {
+      "scopeRef": "global-visual-direction",
+      "sourceType": "preset-direction",
+      "notes": "Resolved beauty-salon seed задает palette, typography и imagery bias."
+    },
+    {
+      "scopeRef": "contact-booking",
+      "sourceType": "operator-approved-note",
+      "notes": "Оператор подтвердил, что внешний widget должен остаться единственной booking destination."
+    },
+    {
+      "scopeRef": "gallery-captions",
+      "sourceType": "placeholder-assumption",
+      "notes": "Если у текущего сайта нет подписей к gallery, captions не генерируются автоматически."
+    }
+  ],
+  "editableScope": [],
+  "externalFlowHandling": {
+    "mode": "preserved-booking-surface",
+    "notes": "Demo redesign'ит surrounding content and CTA framing, но не симулирует локальный booking engine."
+  },
+  "placeholders": [
+    {
+      "scopeRef": "gallery-captions",
+      "gapType": "image-gap",
+      "notes": "Gallery captions optional и могут быть опущены, если verified source их не содержит.",
+      "approvalRequired": false
+    }
+  ],
+  "approvalRequired": true,
+  "generationReady": true,
+  "stopReasons": [],
+  "assumptions": [
+    "Точные цены не включаются, пока они не verified on the current site.",
+    "Service imagery остается within real salon atmosphere and does not rely on stock-only luxury cues."
+  ]
+}

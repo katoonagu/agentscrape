@@ -1,0 +1,95 @@
+﻿{
+  "briefId": "brief-luminoussalon-com-v1",
+  "leadKey": "luminoussalon.com",
+  "decisionType": "DEMO_FRONT_ONLY",
+  "designSeedRef": "seed-luminoussalon-com-v1",
+  "problemSummary": "Текущий сайт теряет доверие и конверсию из-за слабой иерархии услуг, перегруженного hero и неаккуратного перехода к внешнему booking flow.",
+  "redesignGoals": [
+    "Сделать home page более ясной и коммерчески читаемой.",
+    "Подвести пользователя к внешнему booking widget без ощущения сломанного пути.",
+    "Усилить gallery и service framing без выдуманных цен и отзывов."
+  ],
+  "preservedConstraints": [
+    "Внешний booking flow должен остаться внешним.",
+    "Editable scope не разрешен для этого case.",
+    "Не добавлять новые claims, staff identities или точные цены без подтверждения."
+  ],
+  "externalFlowHandling": {
+    "mode": "preserved-booking-surface",
+    "notes": "Все primary CTA ведут в существующий внешний booking widget; surrounding UI redesign'ится, но flow не имитируется локально."
+  },
+  "editableScope": [],
+  "pagePlanSummary": {
+    "planType": "multi-page-limited",
+    "plannedPages": [
+      {
+        "pageKey": "home",
+        "pageType": "home",
+        "required": true
+      },
+      {
+        "pageKey": "hair-services",
+        "pageType": "key-service",
+        "required": true
+      },
+      {
+        "pageKey": "contact-booking",
+        "pageType": "contact-booking",
+        "required": true
+      }
+    ],
+    "rationale": "Qualification подтверждает home page, основной service cluster и booking surface как минимально defensible scope для demo."
+  },
+  "sectionPlan": [
+    {
+      "scopeRef": "home",
+      "sections": [
+        "hero",
+        "services overview",
+        "gallery preview",
+        "reviews",
+        "cta"
+      ],
+      "notes": "Hero должен сразу объяснять offer и вести к booking CTA."
+    },
+    {
+      "scopeRef": "hair-services",
+      "sections": [
+        "service intro",
+        "signature services",
+        "gallery strip",
+        "cta"
+      ],
+      "notes": "Без неподтвержденных price tables и без новых service claims."
+    },
+    {
+      "scopeRef": "contact-booking",
+      "sections": [
+        "contact details",
+        "studio info",
+        "booking handoff"
+      ],
+      "notes": "Booking handoff явно указывает на внешний flow."
+    }
+  ],
+  "copyDirection": [
+    "Тон теплый, уверенный и service-first.",
+    "CTA формулируется как запись на визит, а не как регистрация в системе.",
+    "Trust строится на expertise и social proof, которые уже присутствуют на сайте."
+  ],
+  "visualDirection": [
+    "Мягкая premium editorial подача без перегрузки экрана.",
+    "Фокус на реальной студии, руках мастеров и близких service shots.",
+    "Чистая иерархия CTA вокруг booking surface."
+  ],
+  "nonGoals": [
+    "Не строить внутренний booking engine.",
+    "Не превращать case в editable CMS demo.",
+    "Не расширять sitemap beyond approved pages."
+  ],
+  "assumptions": [
+    "Если текущий сайт не дает полных price details, demo использует service framing без точных цен.",
+    "Gallery captions могут быть опущены, если их нет на исходном сайте."
+  ],
+  "approvalRequired": true
+}

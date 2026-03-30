@@ -1,0 +1,245 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/design-seed.schema.json",
+  "title": "DesignSeed",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "seedConfidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "appliedLayer": {
+      "type": "string",
+      "enum": [
+        "global-defaults",
+        "niche-preset",
+        "existing-brand",
+        "lead-override",
+        "operator-override"
+      ]
+    },
+    "score1to10": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "editableBlock": {
+      "type": "string",
+      "enum": [
+        "hero",
+        "services",
+        "prices",
+        "team",
+        "reviews",
+        "contacts",
+        "faq",
+        "gallery",
+        "cta"
+      ]
+    }
+  },
+  "properties": {
+    "seedId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leadKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "primaryPresetId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "seedConfidence": {
+      "$ref": "#/definitions/seedConfidence"
+    },
+    "sourceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "appliedLayers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/appliedLayer"
+          }
+        },
+        "brandCluesStrength": {
+          "type": "string",
+          "enum": ["weak", "medium", "strong"]
+        },
+        "operatorReferencesUsed": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["appliedLayers", "brandCluesStrength", "operatorReferencesUsed"]
+    },
+    "tasteProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "designVariance": {
+          "$ref": "#/definitions/score1to10"
+        },
+        "motionIntensity": {
+          "$ref": "#/definitions/score1to10"
+        },
+        "visualDensity": {
+          "$ref": "#/definitions/score1to10"
+        }
+      },
+      "required": ["designVariance", "motionIntensity", "visualDensity"]
+    },
+    "copyProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ctaBias": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trustEmphasis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "headlineStyle": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["tone", "ctaBias", "trustEmphasis", "headlineStyle"]
+    },
+    "layoutProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requiredSections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "optionalSections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "orderingBias": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["requiredSections", "optionalSections", "orderingBias"]
+    },
+    "visualDirection": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "paletteDirection": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "typographyDirection": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "imageryDirection": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "preservedConstraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "editableScope": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/editableBlock"
+      }
+    },
+    "riskFlags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "requiresHumanApproval": {
+      "type": "boolean"
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "seedId",
+    "leadKey",
+    "primaryPresetId",
+    "seedConfidence",
+    "sourceSummary",
+    "tasteProfile",
+    "copyProfile",
+    "layoutProfile",
+    "visualDirection",
+    "paletteDirection",
+    "typographyDirection",
+    "imageryDirection",
+    "preservedConstraints",
+    "editableScope",
+    "riskFlags",
+    "requiresHumanApproval"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "seedConfidence": {
+            "const": "low"
+          }
+        },
+        "required": ["seedConfidence"]
+      },
+      "then": {
+        "properties": {
+          "requiresHumanApproval": {
+            "const": true
+          }
+        }
+      }
+    }
+  ]
+}
