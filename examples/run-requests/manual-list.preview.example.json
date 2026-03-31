@@ -1,0 +1,22 @@
+{
+  "requestId": "run-request_manual_list_preview_sample",
+  "operatorId": "local.operator",
+  "workMode": "autopilot",
+  "inputMode": "manual-list",
+  "inputRefs": [
+    {
+      "kind": "source-file",
+      "ref": "../inputs/manual-list.sample.csv",
+      "notes": "Sample local input for the preview slice."
+    }
+  ],
+  "executionBoundary": "preview",
+  "safeLimits": {
+    "maxLeads": 10,
+    "maxBuildableLeads": 2,
+    "maxPreviewLeads": 1,
+    "maxPagesPerLead": 3
+  },
+  "operatorNotes": "Local preview slice. Stop after generation artifacts and local static preview output for eligible DEMO_FRONT_ONLY leads.",
+  "createdAt": "2026-03-31T16:45:00Z"
+}

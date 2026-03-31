@@ -5,7 +5,7 @@ import { executeRun } from "../../../../packages/pipeline/run/src/execute-run";
 export function registerRunCommand(program: Command): void {
   program
     .command("run")
-    .description("Execute the local pipeline slice from manual input to decision or generation-planning artifacts.")
+    .description("Execute the local pipeline slice from manual input through decision, generation-planning, or preview artifacts.")
     .argument("[requestPath]", "Path to a structured run-request JSON file")
     .option("--request <path>", "Path to a structured run-request JSON file")
     .option("--replace-existing-run", "Remove an existing run directory before starting the run")

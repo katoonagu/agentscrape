@@ -2,7 +2,6 @@ import path from "node:path";
 import type { Browser, Page } from "playwright";
 import type {
   AccessBarrier,
-  ExternalFlow,
   LeadArtifact,
   SelectionMode,
   SiteSnapshotArtifact,
@@ -40,6 +39,7 @@ export interface PageAnalysis {
   hasPricingSignals: boolean;
   hasServiceSignals: boolean;
   hasExternalBookingSignals: boolean;
+  externalBookingUrl?: string;
   appHintCount: number;
   screenshotRef: string;
 }
@@ -51,6 +51,7 @@ export interface SnapshotExecutionResult {
   retryAttempted: boolean;
   retrySucceeded: boolean;
   technicalNotes: string[];
+  primaryExternalFlowUrl?: string;
 }
 
 interface DomLinkCandidate {
@@ -147,6 +148,7 @@ export async function captureSiteSnapshot(params: {
     const externalFlow = pageAnalyses.some((analysis) => analysis.hasExternalBookingSignals)
       ? "EXTERNAL_BOOKING_OR_WIDGET"
       : "NONE";
+    const primaryExternalFlowUrl = pageAnalyses.find((analysis) => analysis.externalBookingUrl)?.externalBookingUrl;
     const finalSelectionMode =
       selectedLinks.length === 0 && onePageCandidate ? "ONE_PAGE_VIRTUAL_SECTIONS" : "STANDARD_3_PAGE";
 
@@ -167,7 +169,8 @@ export async function captureSiteSnapshot(params: {
       barrierEncountered: homeLoad.barrier !== "NONE",
       retryAttempted: homeLoad.retryAttemptCount > 0,
       retrySucceeded: homeLoad.retrySucceeded,
-      technicalNotes
+      technicalNotes,
+      primaryExternalFlowUrl
     };
   } finally {
     await page.close();
@@ -353,6 +356,7 @@ function toPageAnalysis(
       rawData.links.some((link) =>
         /(book|booking|appoint|reserve|запис)/iu.test(`${link.text} ${link.href}`) && !sameOrigin(finalUrl, link.href)
       ),
+    externalBookingUrl: findExternalBookingUrl(finalUrl, rawData.links),
     screenshotRef,
     appHintCount: countMatches(
       loweredText,
@@ -524,6 +528,27 @@ function sameOrigin(baseUrl: string, candidateUrl: string): boolean {
   } catch {
     return false;
   }
+}
+
+function findExternalBookingUrl(baseUrl: string, links: DomLinkCandidate[]): string | undefined {
+  for (const link of links) {
+    const haystack = `${link.text} ${link.href}`;
+    if (!/(book|booking|appoint|reserve|consult|demo|contact|запис|контакт)/iu.test(haystack)) {
+      continue;
+    }
+
+    if (sameOrigin(baseUrl, link.href)) {
+      continue;
+    }
+
+    try {
+      return new URL(link.href).toString();
+    } catch {
+      continue;
+    }
+  }
+
+  return undefined;
 }
 
 function countMatches(value: string, regex: RegExp): number {

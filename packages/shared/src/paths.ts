@@ -13,6 +13,9 @@ export interface RunPaths {
   briefsDir: string;
   buildPlansDir: string;
   designBriefProjectionDir: string;
+  previewDir: string;
+  previewSitesDir: string;
+  siteScaffoldsDir: string;
   screenshotsDir: string;
 }
 
@@ -32,6 +35,9 @@ export function getRunPaths(repoRoot: string, runId: string): RunPaths {
     briefsDir: path.join(runDir, "briefs"),
     buildPlansDir: path.join(runDir, "build-plans"),
     designBriefProjectionDir: path.join(runDir, "projections", "design-brief"),
+    previewDir: path.join(runDir, "preview"),
+    previewSitesDir: path.join(runDir, "preview-sites"),
+    siteScaffoldsDir: path.join(runDir, "site-scaffolds"),
     screenshotsDir: path.join(runDir, "screenshots")
   };
 }

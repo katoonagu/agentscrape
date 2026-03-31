@@ -1,4 +1,5 @@
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import fs from "fs-extra";
 import { chromium, type Browser } from "playwright";
 import type {
@@ -8,6 +9,7 @@ import type {
   LeadArtifact,
   OperatorAuditEvent,
   OperatorAuditLog,
+  PreviewManifestArtifact,
   QualificationArtifact,
   RedesignBriefArtifact,
   RunManifest,
@@ -16,7 +18,7 @@ import type {
   RunState,
   SiteSnapshotArtifact
 } from "../../../shared/src/contracts";
-import { readJsonFile, writeJsonFile, ensureDirectory } from "../../../shared/src/fs";
+import { readJsonFile, writeJsonFile, writeTextFile, ensureDirectory } from "../../../shared/src/fs";
 import { createId, createRunId, nowIso } from "../../../shared/src/ids";
 import { getRunPaths, toArtifactRef } from "../../../shared/src/paths";
 import { SchemaValidator } from "../../../shared/src/schema";
@@ -32,6 +34,9 @@ import { resolveDesignSeed } from "../../generation/src/resolve-design-seed";
 import { buildRedesignBrief } from "../../generation/src/build-redesign-brief";
 import { buildDemoBuildPlan } from "../../generation/src/build-demo-build-plan";
 import { renderDesignBriefProjection } from "../../generation/src/render-design-brief";
+import { buildBlockedPreviewManifest, buildReadyPreviewManifest } from "../../preview/src/build-preview-manifest";
+import { generateFrontOnlyPreview } from "../../preview/src/generate-front-only-preview";
+import { generateSiteScaffold } from "../../site-scaffold/src/generate-site-scaffold";
 import { verifyRunOutput } from "./verify-run-output";
 
 interface RuntimeLeadContext {
@@ -45,12 +50,16 @@ interface RuntimeLeadContext {
   redesignBriefPath?: string;
   demoBuildPlanPath?: string;
   designBriefProjectionPath?: string;
+  previewManifestPath?: string;
   screenshotDir: string;
   manifestIndex: number;
   snapshotArtifact?: SiteSnapshotArtifact;
   snapshotResult?: SnapshotExecutionResult;
   qualificationArtifact?: QualificationArtifact;
   decisionArtifact?: DecisionArtifact;
+  designSeedArtifact?: DesignSeedArtifact;
+  redesignBriefArtifact?: RedesignBriefArtifact;
+  demoBuildPlanArtifact?: DemoBuildPlanArtifact;
 }
 
 export async function executeRun(
@@ -130,7 +139,8 @@ export async function executeRun(
       demoFrontOnly: 0,
       demoEditableContent: 0,
       previewReady: 0
-    }
+    },
+    artifacts: []
   };
 
   await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
@@ -176,7 +186,7 @@ export async function executeRun(
     }
 
     let generationPartialFailure = false;
-    if (request.executionBoundary === "generation") {
+    if (request.executionBoundary === "generation" || request.executionBoundary === "preview") {
       generationPartialFailure = await continueGenerationPlanning({
         request,
         repoRoot,
@@ -188,7 +198,24 @@ export async function executeRun(
       });
     }
 
-    manifest.runState = generationPartialFailure ? "PARTIAL_DONE" : "RUN_DONE";
+    let previewPartialFailure = false;
+    if (request.executionBoundary === "preview") {
+      manifest.runState = "DEPLOYING_PREVIEW";
+      await persistManifest(validator, runPaths.manifestPath, manifest);
+
+      previewPartialFailure = await continuePreviewGeneration({
+        request,
+        repoRoot,
+        runId,
+        runPaths,
+        validator,
+        runtimeLeads,
+        manifest,
+        auditLog
+      });
+    }
+
+    manifest.runState = generationPartialFailure || previewPartialFailure ? "PARTIAL_DONE" : "RUN_DONE";
     recalculateManifestCounts(manifest, runtimeLeads);
     await persistManifest(validator, runPaths.manifestPath, manifest);
     await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
@@ -243,9 +270,9 @@ function assertRuntimeSupport(request: RunRequest): void {
     throw new Error(`Unsupported inputMode "${request.inputMode}". This slice implements only "manual-list".`);
   }
 
-  if (!["decision", "generation"].includes(request.executionBoundary)) {
+  if (!["decision", "generation", "preview"].includes(request.executionBoundary)) {
     throw new Error(
-      `Unsupported executionBoundary "${request.executionBoundary}". This slice implements only "decision" and "generation".`
+      `Unsupported executionBoundary "${request.executionBoundary}". This slice implements only "decision", "generation", and "preview".`
     );
   }
 }
@@ -471,6 +498,7 @@ async function continueGenerationPlanning(params: {
         globalDefaults,
         selection
       });
+      context.designSeedArtifact = designSeed;
       context.designSeedPath = path.join(runPaths.designSeedsDir, `${context.artifactBaseName}.design-seed.json`);
       await persistDesignSeedArtifact(validator, designSeed, context.designSeedPath);
 
@@ -481,6 +509,7 @@ async function continueGenerationPlanning(params: {
         designSeed,
         designSeedRef: toArtifactRef(repoRoot, context.designSeedPath)
       });
+      context.redesignBriefArtifact = redesignBrief;
       context.redesignBriefPath = path.join(runPaths.briefsDir, `${context.artifactBaseName}.redesign-brief.json`);
       await persistRedesignBriefArtifact(validator, redesignBrief, context.redesignBriefPath);
 
@@ -494,6 +523,7 @@ async function continueGenerationPlanning(params: {
         designSeedRef: toArtifactRef(repoRoot, context.designSeedPath),
         redesignBriefRef: toArtifactRef(repoRoot, context.redesignBriefPath)
       });
+      context.demoBuildPlanArtifact = demoBuildPlan;
       context.demoBuildPlanPath = path.join(runPaths.buildPlansDir, `${context.artifactBaseName}.demo-build-plan.json`);
       await persistDemoBuildPlanArtifact(validator, demoBuildPlan, context.demoBuildPlanPath);
 
@@ -554,12 +584,353 @@ async function continueGenerationPlanning(params: {
   return partialFailure;
 }
 
+async function continuePreviewGeneration(params: {
+  request: RunRequest;
+  repoRoot: string;
+  runId: string;
+  runPaths: ReturnType<typeof getRunPaths>;
+  validator: SchemaValidator;
+  runtimeLeads: RuntimeLeadContext[];
+  manifest: RunManifest;
+  auditLog: OperatorAuditLog;
+}): Promise<boolean> {
+  const { request, repoRoot, runId, runPaths, validator, runtimeLeads, manifest, auditLog } = params;
+  const previewCandidates = runtimeLeads.filter((context) =>
+    isBuildableDecision(context.decisionArtifact?.finalDecision)
+  );
+
+  if (previewCandidates.length === 0) {
+    addAuditEvent(auditLog, {
+      eventType: "NOTE_ADDED",
+      actorType: "system",
+      notes: "Preview boundary requested but no buildable leads were eligible after decision."
+    });
+    await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
+    return false;
+  }
+
+  const allowedPreviewLeads =
+    request.safeLimits?.maxPreviewLeads && request.safeLimits.maxPreviewLeads > 0
+      ? previewCandidates.slice(0, request.safeLimits.maxPreviewLeads)
+      : previewCandidates;
+
+  if (allowedPreviewLeads.length !== previewCandidates.length) {
+    addAuditEvent(auditLog, {
+      eventType: "NOTE_ADDED",
+      actorType: "system",
+      notes: `Applied safe limit maxPreviewLeads=${request.safeLimits?.maxPreviewLeads}; preview continuation will proceed for ${allowedPreviewLeads.length} of ${previewCandidates.length} buildable leads.`
+    });
+
+    for (const skippedContext of previewCandidates.slice(allowedPreviewLeads.length)) {
+      const manifestLead = manifest.leads[skippedContext.manifestIndex];
+      skippedContext.record.lead.notes = appendNote(
+        skippedContext.record.lead.notes,
+        `Preview generation skipped because maxPreviewLeads=${request.safeLimits?.maxPreviewLeads} was reached.`
+      );
+      await persistLeadArtifact(validator, skippedContext.record.lead, skippedContext.leadPath);
+      manifestLead.notes = appendNote(
+        manifestLead.notes,
+        `Preview generation skipped because maxPreviewLeads=${request.safeLimits?.maxPreviewLeads} was reached.`
+      );
+    }
+  }
+
+  let partialFailure = false;
+
+  for (const context of allowedPreviewLeads) {
+    const manifestLead = manifest.leads[context.manifestIndex];
+    const previewSiteDir = path.join(runPaths.previewSitesDir, context.record.lead.leadKey);
+    const siteScaffoldDir = path.join(runPaths.siteScaffoldsDir, context.record.lead.leadKey);
+    const stagingRoot = path.join(runPaths.runDir, ".staging", context.record.lead.leadKey);
+    const previewStageDir = path.join(stagingRoot, "preview-site");
+    const scaffoldStageDir = path.join(stagingRoot, "site-scaffold");
+    context.previewManifestPath = path.join(runPaths.previewDir, `${context.record.lead.leadKey}.preview-manifest.json`);
+    removeScaffoldArtifact(manifest, context.record.lead.leadKey);
+
+    if (!hasCompleteGenerationArtifacts(context)) {
+      const note = "Preview continuation skipped because required generation artifacts are missing for this lead.";
+      context.record.lead.notes = appendNote(context.record.lead.notes, note);
+      manifestLead.notes = appendNote(manifestLead.notes, note);
+      await persistLeadArtifact(validator, context.record.lead, context.leadPath);
+      addAuditEvent(auditLog, {
+        eventType: "NOTE_ADDED",
+        actorType: "system",
+        leadKey: context.record.lead.leadKey,
+        notes: note
+      });
+      await persistManifest(validator, runPaths.manifestPath, manifest);
+      await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
+      continue;
+    }
+
+    const previewBase = {
+      runId,
+      leadKey: context.record.lead.leadKey,
+      decision: context.decisionArtifact.finalDecision,
+      decisionRef: toArtifactRef(repoRoot, context.decisionPath!),
+      designSeedRef: toArtifactRef(repoRoot, context.designSeedPath!),
+      redesignBriefRef: toArtifactRef(repoRoot, context.redesignBriefPath!),
+      demoBuildPlanRef: toArtifactRef(repoRoot, context.demoBuildPlanPath!),
+      externalFlowHandling: context.redesignBriefArtifact.externalFlowHandling
+    } as const;
+
+    try {
+      if (context.decisionArtifact.finalDecision === "DEMO_EDITABLE_CONTENT") {
+        await fs.remove(previewSiteDir);
+        await fs.remove(siteScaffoldDir);
+        const blockedPath = path.join(previewSiteDir, "BLOCKED.txt");
+        await writeTextFile(
+          blockedPath,
+          [
+            "Preview bundle is blocked for this lead.",
+            "",
+            `leadKey: ${context.record.lead.leadKey}`,
+            "reason: DEMO_EDITABLE_CONTENT actual preview is not implemented in this slice."
+          ].join("\n")
+        );
+        const previewManifest = buildBlockedPreviewManifest(
+          previewBase,
+          blockedPath,
+          ["GENERATION_BOUNDARY_VIOLATION"],
+          "Preview remains blocked because actual editable demo runtime is not implemented in this slice."
+        );
+        await persistPreviewManifestArtifact(validator, previewManifest, context.previewManifestPath);
+        manifestLead.previewManifestRef = toArtifactRef(repoRoot, context.previewManifestPath);
+        manifestLead.notes = appendNote(
+          manifestLead.notes,
+          "Preview manifest recorded as blocked because editable preview runtime is not implemented."
+        );
+        context.record.lead.notes = appendNote(
+          context.record.lead.notes,
+          "Preview manifest recorded as blocked because editable preview runtime is not implemented."
+        );
+        await persistLeadArtifact(validator, context.record.lead, context.leadPath);
+        addAuditEvent(auditLog, {
+          eventType: "NOTE_ADDED",
+          actorType: "system",
+          leadKey: context.record.lead.leadKey,
+          artifactRefs: [{ kind: "preview-manifest", ref: toArtifactRef(repoRoot, context.previewManifestPath) }],
+          notes: "Preview manifest recorded as blocked for DEMO_EDITABLE_CONTENT."
+        });
+      } else {
+        await fs.remove(stagingRoot);
+        const previewResult = await generateFrontOnlyPreview({
+          lead: context.record.lead,
+          decision: context.decisionArtifact,
+          designSeed: context.designSeedArtifact,
+          redesignBrief: context.redesignBriefArtifact,
+          demoBuildPlan: context.demoBuildPlanArtifact,
+          snapshotResult: context.snapshotResult!,
+          previewSiteDir: previewStageDir
+        });
+
+        if (previewResult.status === "blocked") {
+          await fs.remove(previewSiteDir);
+          await fs.remove(siteScaffoldDir);
+          await fs.move(previewStageDir, previewSiteDir, { overwrite: true });
+
+          const blockedPreviewPath = path.join(previewSiteDir, "BLOCKED.txt");
+          const previewManifest = buildBlockedPreviewManifest(
+            previewBase,
+            blockedPreviewPath,
+            previewResult.blockers,
+            previewResult.notes
+          );
+
+          await persistPreviewManifestArtifact(validator, previewManifest, context.previewManifestPath);
+          manifestLead.previewManifestRef = toArtifactRef(repoRoot, context.previewManifestPath);
+          context.record.lead.currentState = "GENERATING_DEMO";
+          manifestLead.currentState = "GENERATING_DEMO";
+          context.record.lead.notes = appendNote(context.record.lead.notes, previewResult.notes);
+          manifestLead.notes = appendNote(manifestLead.notes, previewResult.notes);
+          addAuditEvent(auditLog, {
+            eventType: "NOTE_ADDED",
+            actorType: "system",
+            leadKey: context.record.lead.leadKey,
+            artifactRefs: [{ kind: "preview-manifest", ref: toArtifactRef(repoRoot, context.previewManifestPath) }],
+            notes: `Preview manifest recorded as blocked: ${previewResult.notes}`
+          });
+          await persistLeadArtifact(validator, context.record.lead, context.leadPath);
+        } else {
+          const scaffoldResult = await generateSiteScaffold({
+            lead: context.record.lead,
+            qualification: context.qualificationArtifact!,
+            decision: context.decisionArtifact,
+            designSeed: context.designSeedArtifact,
+            redesignBrief: context.redesignBriefArtifact,
+            demoBuildPlan: context.demoBuildPlanArtifact,
+            snapshotResult: context.snapshotResult!,
+            scaffoldRoot: scaffoldStageDir,
+            sourceRefs: {
+              snapshotRef: context.snapshotPath ? toArtifactRef(repoRoot, context.snapshotPath) : undefined,
+              qualificationRef: context.qualificationPath ? toArtifactRef(repoRoot, context.qualificationPath) : undefined,
+              decisionRef: toArtifactRef(repoRoot, context.decisionPath),
+              designSeedRef: toArtifactRef(repoRoot, context.designSeedPath),
+              redesignBriefRef: toArtifactRef(repoRoot, context.redesignBriefPath),
+              demoBuildPlanRef: toArtifactRef(repoRoot, context.demoBuildPlanPath),
+              previewManifestRef: toArtifactRef(repoRoot, context.previewManifestPath)
+            }
+          });
+
+          await fs.remove(previewSiteDir);
+          await fs.remove(siteScaffoldDir);
+          await fs.move(previewStageDir, previewSiteDir, { overwrite: true });
+          await fs.move(scaffoldStageDir, siteScaffoldDir, { overwrite: true });
+
+          const finalIndexPath = path.join(previewSiteDir, "index.html");
+          const previewManifest = buildReadyPreviewManifest(
+            previewBase,
+            finalIndexPath,
+            `${previewResult.notes} ${scaffoldResult.notes}`
+          );
+
+          await persistPreviewManifestArtifact(validator, previewManifest, context.previewManifestPath);
+          manifestLead.previewManifestRef = toArtifactRef(repoRoot, context.previewManifestPath);
+          upsertScaffoldArtifact(
+            manifest,
+            context.record.lead.leadKey,
+            path.join(siteScaffoldDir, "README.md"),
+            siteScaffoldDir
+          );
+
+          context.record.lead.currentState = "PREVIEW_READY";
+          manifestLead.currentState = "PREVIEW_READY";
+          context.record.lead.notes = appendNote(
+            context.record.lead.notes,
+            "Local static preview and draft Next scaffold generated for DEMO_FRONT_ONLY."
+          );
+          manifestLead.notes = appendNote(
+            manifestLead.notes,
+            "Local static preview and draft Next scaffold generated for DEMO_FRONT_ONLY."
+          );
+          addAuditEvent(auditLog, {
+            eventType: "NOTE_ADDED",
+            actorType: "system",
+            leadKey: context.record.lead.leadKey,
+            artifactRefs: [
+              { kind: "preview-manifest", ref: toArtifactRef(repoRoot, context.previewManifestPath) },
+              { kind: "site-scaffold", ref: toArtifactRef(repoRoot, path.join(siteScaffoldDir, "README.md")) }
+            ],
+            notes: "Local static preview bundle and draft Next scaffold generated for DEMO_FRONT_ONLY."
+          });
+          await persistLeadArtifact(validator, context.record.lead, context.leadPath);
+        }
+      }
+    } catch (error) {
+      partialFailure = true;
+      const message = error instanceof Error ? error.message : String(error);
+      await fs.remove(stagingRoot);
+      await fs.remove(siteScaffoldDir);
+      removeScaffoldArtifact(manifest, context.record.lead.leadKey);
+      const failureNotePath = path.join(previewSiteDir, "FAILURE.txt");
+      await fs.remove(previewSiteDir);
+      await writeTextFile(
+        failureNotePath,
+        [
+          "Preview generation failed for this lead.",
+          "",
+          `leadKey: ${context.record.lead.leadKey}`,
+          `error: ${message}`
+        ].join("\n")
+      );
+
+      const failedPreviewManifest = buildBlockedPreviewManifest(
+        previewBase,
+        failureNotePath,
+        ["PREVIEW_BUILD_FAILED"],
+        `Local preview generation failed unexpectedly: ${message}`,
+        "failed"
+      );
+      await persistPreviewManifestArtifact(validator, failedPreviewManifest, context.previewManifestPath);
+      manifestLead.previewManifestRef = toArtifactRef(repoRoot, context.previewManifestPath);
+      manifestLead.currentState = "GENERATING_DEMO";
+      manifestLead.notes = appendNote(manifestLead.notes, `Preview generation failed: ${message}`);
+      context.record.lead.currentState = "GENERATING_DEMO";
+      context.record.lead.notes = appendNote(context.record.lead.notes, `Preview generation failed: ${message}`);
+      await persistLeadArtifact(validator, context.record.lead, context.leadPath);
+      addAuditEvent(auditLog, {
+        eventType: "NOTE_ADDED",
+        actorType: "system",
+        leadKey: context.record.lead.leadKey,
+        artifactRefs: [{ kind: "preview-manifest", ref: toArtifactRef(repoRoot, context.previewManifestPath) }],
+        notes: `Preview generation failed unexpectedly: ${message}`
+      });
+    }
+
+    await fs.remove(stagingRoot);
+
+    await persistManifest(validator, runPaths.manifestPath, manifest);
+    await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
+  }
+
+  return partialFailure;
+}
+
 function isBuildableDecision(decision: DecisionArtifact["finalDecision"] | undefined): boolean {
   return decision === "DEMO_FRONT_ONLY" || decision === "DEMO_EDITABLE_CONTENT";
 }
 
+function hasCompleteGenerationArtifacts(context: RuntimeLeadContext): context is RuntimeLeadContext & {
+  decisionArtifact: DecisionArtifact;
+  designSeedArtifact: DesignSeedArtifact;
+  redesignBriefArtifact: RedesignBriefArtifact;
+  demoBuildPlanArtifact: DemoBuildPlanArtifact;
+  snapshotResult: SnapshotExecutionResult;
+  decisionPath: string;
+  designSeedPath: string;
+  redesignBriefPath: string;
+  demoBuildPlanPath: string;
+} {
+  return Boolean(
+    context.decisionArtifact &&
+      context.designSeedArtifact &&
+      context.redesignBriefArtifact &&
+      context.demoBuildPlanArtifact &&
+      context.snapshotResult &&
+      context.decisionPath &&
+      context.designSeedPath &&
+      context.redesignBriefPath &&
+      context.demoBuildPlanPath
+  );
+}
+
 function appendNote(existing: string | undefined, note: string): string {
   return existing ? `${existing} ${note}` : note;
+}
+
+function upsertScaffoldArtifact(
+  manifest: RunManifest,
+  leadKey: string,
+  scaffoldReadmePath: string,
+  scaffoldRoot: string
+): void {
+  const readmeUri = pathToFileURL(scaffoldReadmePath).toString();
+  const notes = `leadKey=${leadKey}; scaffoldRoot=${scaffoldRoot}`;
+  const remaining = (manifest.artifacts ?? []).filter(
+    (artifact) => !isScaffoldArtifactForLead(artifact, leadKey)
+  );
+
+  remaining.push({
+    kind: "preview-bundle",
+    locationKind: "local-doc",
+    uri: readmeUri,
+    notes
+  });
+
+  manifest.artifacts = remaining;
+}
+
+function removeScaffoldArtifact(manifest: RunManifest, leadKey: string): void {
+  manifest.artifacts = (manifest.artifacts ?? []).filter(
+    (artifact) => !isScaffoldArtifactForLead(artifact, leadKey)
+  );
+}
+
+function isScaffoldArtifactForLead(
+  artifact: NonNullable<RunManifest["artifacts"]>[number],
+  leadKey: string
+): boolean {
+  return artifact.locationKind === "local-doc" && (artifact.notes?.includes(`leadKey=${leadKey}`) ?? false);
 }
 
 async function persistLeadArtifact(validator: SchemaValidator, lead: LeadArtifact, filePath: string): Promise<void> {
@@ -608,6 +979,15 @@ async function persistDemoBuildPlanArtifact(
   await writeJsonFile(filePath, demoBuildPlan);
 }
 
+async function persistPreviewManifestArtifact(
+  validator: SchemaValidator,
+  previewManifest: PreviewManifestArtifact,
+  filePath: string
+): Promise<void> {
+  await validator.validate("preview-manifest", previewManifest);
+  await writeJsonFile(filePath, previewManifest);
+}
+
 async function persistManifest(validator: SchemaValidator, filePath: string, manifest: RunManifest): Promise<void> {
   await validator.validate("run-manifest", manifest);
   await writeJsonFile(filePath, manifest);
@@ -651,6 +1031,6 @@ function recalculateManifestCounts(manifest: RunManifest, runtimeLeads: RuntimeL
     auditOnly: decisions.filter((decision) => decision === "AUDIT_ONLY").length,
     demoFrontOnly: decisions.filter((decision) => decision === "DEMO_FRONT_ONLY").length,
     demoEditableContent: decisions.filter((decision) => decision === "DEMO_EDITABLE_CONTENT").length,
-    previewReady: 0
+    previewReady: manifest.leads.filter((lead) => lead.currentState === "PREVIEW_READY").length
   };
 }

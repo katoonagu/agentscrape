@@ -1,0 +1,22 @@
+{
+  "requestId": "run-request_manual_list_preview_scaffold_sample",
+  "operatorId": "local.operator",
+  "workMode": "autopilot",
+  "inputMode": "manual-list",
+  "inputRefs": [
+    {
+      "kind": "source-file",
+      "ref": "../inputs/manual-list.sample.csv",
+      "notes": "Sample local input for the preview-to-scaffold slice."
+    }
+  ],
+  "executionBoundary": "preview",
+  "safeLimits": {
+    "maxLeads": 10,
+    "maxBuildableLeads": 2,
+    "maxPreviewLeads": 1,
+    "maxPagesPerLead": 3
+  },
+  "operatorNotes": "Local preview-to-scaffold slice. Stop after preview artifacts and draft front-only site scaffold output for eligible DEMO_FRONT_ONLY leads.",
+  "createdAt": "2026-03-31T18:30:00Z"
+}

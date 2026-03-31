@@ -9,6 +9,7 @@ import type {
   LeadArtifact,
   NichePreset,
   OperatorAuditLog,
+  PreviewManifestArtifact,
   QualificationArtifact,
   RedesignBriefArtifact,
   RunManifest,
@@ -45,7 +46,7 @@ export interface SchemaTypeMap {
   "design-seed": DesignSeedArtifact;
   "niche-preset": NichePreset;
   "operator-override": unknown;
-  "preview-manifest": unknown;
+  "preview-manifest": PreviewManifestArtifact;
   "redesign-brief": RedesignBriefArtifact;
   "review-dossier": unknown;
   "run-request": RunRequest;

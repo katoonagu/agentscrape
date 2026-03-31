@@ -184,3 +184,43 @@ or
 ```bash
 npm run verify:run -- .artifacts/runs/run_manual_list_generation_sample
 ```
+
+## Runnable slice 3
+
+Preview boundary is now available in addition to the existing decision and generation slices.
+
+Run the preview example:
+
+```bash
+npm run cli -- run -- --request examples/run-requests/manual-list.preview.example.json
+```
+
+Run the preview-to-scaffold example:
+
+```bash
+npm run cli -- run -- --request examples/run-requests/manual-list.preview-scaffold.example.json
+```
+
+Preview artifacts are written to:
+
+- `.artifacts/runs/<runId>/preview/<leadKey>.preview-manifest.json`
+- `.artifacts/runs/<runId>/preview-sites/<leadKey>/index.html`
+- `.artifacts/runs/<runId>/preview-sites/<leadKey>/styles.css`
+- `.artifacts/runs/<runId>/preview-sites/<leadKey>/BLOCKED.txt` for blocked preview cases
+- `.artifacts/runs/<runId>/site-scaffolds/<leadKey>/package.json`
+- `.artifacts/runs/<runId>/site-scaffolds/<leadKey>/app/page.tsx`
+- `.artifacts/runs/<runId>/site-scaffolds/<leadKey>/app/layout.tsx`
+- `.artifacts/runs/<runId>/site-scaffolds/<leadKey>/app/globals.css`
+- `.artifacts/runs/<runId>/site-scaffolds/<leadKey>/components/site/*`
+- `.artifacts/runs/<runId>/site-scaffolds/<leadKey>/content/site-content.json`
+- `.artifacts/runs/<runId>/site-scaffolds/<leadKey>/DESIGN.md`
+- `.artifacts/runs/<runId>/site-scaffolds/<leadKey>/README.md`
+
+Current slice 3 limits:
+
+- still supports only `inputMode = manual-list`
+- supports `executionBoundary = decision`, `generation`, and `preview`
+- actual local preview and draft Next scaffold are implemented only for `DEMO_FRONT_ONLY`
+- `DEMO_EDITABLE_CONTENT` gets a blocked `preview-manifest`, not an editable runtime or scaffold
+- preview output remains a local static draft bundle; scaffold output is draft-only, front-only, and not a production app
+- scaffold output includes a stitch-compatible `DESIGN.md` handoff layer, but the runtime has no Stitch MCP dependency

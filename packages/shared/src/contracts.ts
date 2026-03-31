@@ -67,6 +67,8 @@ export type ExternalFlowMode =
 export type BriefPagePlanType = "multi-page-limited" | "single-page-sections";
 export type BriefPageType = "home" | "key-service" | "contact-booking" | "single-page";
 export type BuildGenerationMode = "front-only" | "limited-editable-content";
+export type PreviewStatus = "requested" | "building" | "ready" | "failed" | "blocked";
+export type PreviewDeploymentKind = "external-preview-deployment" | "external-artifact";
 export type ContentSourceType =
   | "verified-current-site"
   | "qualification-finding"
@@ -92,6 +94,12 @@ export type BuildStopReason =
   | "LOW_SEED_CONFIDENCE"
   | "DIRECTION_CONFLICT_WITH_SITE_REALITY"
   | "COMPLEXITY_BORDERLINE";
+export type PreviewBlocker =
+  | "APPROVAL_PENDING"
+  | "MISSING_REDESIGN_BRIEF"
+  | "MISSING_DEMO_BUILD_PLAN"
+  | "GENERATION_BOUNDARY_VIOLATION"
+  | "PREVIEW_BUILD_FAILED";
 
 export interface Reference {
   kind: string;
@@ -325,6 +333,30 @@ export interface DemoBuildPlanArtifact {
   generationReady: boolean;
   stopReasons: BuildStopReason[];
   assumptions?: string[];
+}
+
+export interface PreviewManifestArtifact {
+  previewId: string;
+  runId: string;
+  leadKey: string;
+  decision: Extract<PipelineDecision, "DEMO_FRONT_ONLY" | "DEMO_EDITABLE_CONTENT">;
+  decisionRef: string;
+  designSeedRef: string;
+  redesignBriefRef: string;
+  demoBuildPlanRef: string;
+  provider: string;
+  status: PreviewStatus;
+  deploymentKind: PreviewDeploymentKind;
+  previewUrl?: string;
+  artifactUri?: string;
+  generatedAt: string;
+  buildStoredInRepo: false;
+  externalFlowHandling: {
+    mode: ExternalFlowMode;
+    notes: string;
+  };
+  blockers?: PreviewBlocker[];
+  notes?: string;
 }
 
 export interface NichePreset {
