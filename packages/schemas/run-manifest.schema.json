@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://agentscrape.local/schemas/run-manifest.schema.json",
   "title": "RunManifest",
@@ -60,6 +60,24 @@
     },
     "runState": {
       "$ref": "#/definitions/runState"
+    },
+    "runRequestRef": {
+      "type": "string"
+    },
+    "approvalRequestRefs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approvalResponseRefs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "operatorAuditLogRef": {
+      "type": "string"
     },
     "input": {
       "type": "object",
@@ -125,6 +143,12 @@
           },
           "reviewDossierRef": {
             "type": "string"
+          },
+          "operatorOverrideRefs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "notes": {
             "type": "string"

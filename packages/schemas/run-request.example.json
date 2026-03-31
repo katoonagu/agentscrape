@@ -1,0 +1,29 @@
+{
+  "requestId": "run-request_2026_03_31_batch_01",
+  "operatorId": "ops.alex",
+  "workMode": "checkpointed",
+  "inputMode": "manual-list",
+  "inputRefs": [
+    {
+      "kind": "source-file",
+      "ref": "leads/manual/q2-targets-batch-01.csv",
+      "notes": "Curated shortlist for local services redesign outreach."
+    }
+  ],
+  "executionBoundary": "preview",
+  "safeLimits": {
+    "maxLeads": 25,
+    "maxBuildableLeads": 8,
+    "maxPreviewLeads": 5,
+    "maxPagesPerLead": 3
+  },
+  "operatorNotes": "Keep external booking flows preserved and stop on every checkpoint batch for manual approval.",
+  "operatorReferences": [
+    {
+      "kind": "directional-reference",
+      "ref": "https://assets.example.com/operators/local-services-q2-reference-board.pdf",
+      "notes": "Directional only; not a factual content source."
+    }
+  ],
+  "createdAt": "2026-03-31T09:50:00Z"
+}

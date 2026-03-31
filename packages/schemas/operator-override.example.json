@@ -1,0 +1,21 @@
+{
+  "overrideId": "override_2026_03_31_luminoussalon_page_scope_01",
+  "runId": "run_2026_03_31_batch_01",
+  "leadKey": "luminoussalon.com",
+  "scope": "lead",
+  "targetArtifactKind": "demo-build-plan",
+  "overrideType": "constrain-page-scope",
+  "payload": {
+    "maxPages": 2,
+    "allowedPageKeys": [
+      "home",
+      "contact-booking"
+    ],
+    "notes": "Do not add secondary service pages without stronger qualification evidence."
+  },
+  "rationale": "Operator constrained page scope to the minimum defensible surface after reviewing qualification evidence.",
+  "requiresReevaluation": true,
+  "createdBy": "ops.alex",
+  "createdAt": "2026-03-31T11:35:00Z",
+  "sourceRef": "packages/schemas/approval-response.example.json"
+}

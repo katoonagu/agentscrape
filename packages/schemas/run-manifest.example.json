@@ -1,8 +1,16 @@
-﻿{
+{
   "runId": "run_2026_03_31_batch_01",
   "createdAt": "2026-03-31T10:15:00Z",
   "workMode": "checkpointed",
   "runState": "PARTIAL_DONE",
+  "runRequestRef": "artifacts/control/run-requests/run_2026_03_31_batch_01.request.json",
+  "approvalRequestRefs": [
+    "artifacts/control/approvals/run_2026_03_31_batch_01.batch_01.request.json"
+  ],
+  "approvalResponseRefs": [
+    "artifacts/control/approvals/run_2026_03_31_batch_01.batch_01.response.json"
+  ],
+  "operatorAuditLogRef": "artifacts/control/audit/run_2026_03_31_batch_01.audit-log.json",
   "input": {
     "kind": "manual-list",
     "sourceRef": "leads/manual/mixed-batch-01.csv",
@@ -20,7 +28,10 @@
       "redesignBriefRef": "packages/schemas/redesign-brief.example.json",
       "demoBuildPlanRef": "packages/schemas/demo-build-plan.example.json",
       "previewManifestRef": "packages/schemas/preview-manifest.example.json",
-      "reviewDossierRef": "packages/schemas/review-dossier.example.json"
+      "reviewDossierRef": "packages/schemas/review-dossier.example.json",
+      "operatorOverrideRefs": [
+        "artifacts/control/overrides/luminoussalon.page-scope.override.json"
+      ]
     },
     {
       "leadKey": "amberlegalgroup.com",

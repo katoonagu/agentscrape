@@ -1,0 +1,69 @@
+{
+  "approvalResponseId": "approval-response_2026_03_31_checkpoint_batch_01",
+  "approvalRequestRef": "packages/schemas/approval-request.example.json",
+  "runId": "run_2026_03_31_checkpoint_batch_01",
+  "batchId": "checkpoint_batch_01",
+  "operatorId": "ops.alex",
+  "decisions": [
+    {
+      "leadKey": "luminoussalon.com",
+      "verdict": "approve-current",
+      "resultingDecision": "DEMO_FRONT_ONLY",
+      "notes": "Proceed with conservative home + booking surface scope."
+    },
+    {
+      "leadKey": "riverdental.com",
+      "verdict": "approve-current",
+      "resultingDecision": "DEMO_FRONT_ONLY",
+      "notes": "Explicitly preserve external booking path."
+    },
+    {
+      "leadKey": "amberlegalgroup.com",
+      "verdict": "downgrade-to-audit-only",
+      "resultingDecision": "AUDIT_ONLY",
+      "notes": "Confidence remains too low for generation path."
+    },
+    {
+      "leadKey": "cedarsmiles.com",
+      "verdict": "approve-current",
+      "resultingDecision": "DEMO_EDITABLE_CONTENT",
+      "notes": "Stay inside approved editable blocks only."
+    },
+    {
+      "leadKey": "ivybeautyhouse.com",
+      "verdict": "approve-current",
+      "resultingDecision": "DEMO_EDITABLE_CONTENT",
+      "notes": "Editable content path approved with no page expansion."
+    },
+    {
+      "leadKey": "beaconfamilylaw.com",
+      "verdict": "return-for-reevaluation",
+      "notes": "Need clearer rationale before keeping case as audit-only or buildable."
+    },
+    {
+      "leadKey": "glowstudio.example",
+      "verdict": "approve-current",
+      "resultingDecision": "DEMO_FRONT_ONLY",
+      "notes": "Proceed under default limited page scope."
+    },
+    {
+      "leadKey": "harbordental.example",
+      "verdict": "approve-current",
+      "resultingDecision": "DEMO_FRONT_ONLY",
+      "notes": "Approval granted only with preserved external booking surface."
+    },
+    {
+      "leadKey": "northshorelegal.example",
+      "verdict": "downgrade-to-audit-only",
+      "resultingDecision": "AUDIT_ONLY",
+      "notes": "Borderline confidence does not justify buildable branch."
+    },
+    {
+      "leadKey": "willowmedspa.example",
+      "verdict": "return-for-reevaluation",
+      "notes": "Need confirmation that prices and team content are sufficiently verified."
+    }
+  ],
+  "notes": "Mixed response recorded per lead. Reevaluation required only for explicitly marked items.",
+  "createdAt": "2026-03-31T11:22:00Z"
+}

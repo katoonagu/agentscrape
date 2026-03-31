@@ -1,0 +1,105 @@
+{
+  "approvalRequestId": "approval-request_2026_03_31_checkpoint_batch_01",
+  "runId": "run_2026_03_31_checkpoint_batch_01",
+  "batchId": "checkpoint_batch_01",
+  "gateType": "checkpoint-batch",
+  "workMode": "checkpointed",
+  "items": [
+    {
+      "leadKey": "luminoussalon.com",
+      "currentDecision": "DEMO_FRONT_ONLY",
+      "approvalReasons": [
+        "CHECKPOINT_BATCH"
+      ],
+      "summary": "Clear uplift potential, but final preview path still waits for operator checkpoint."
+    },
+    {
+      "leadKey": "riverdental.com",
+      "currentDecision": "DEMO_FRONT_ONLY",
+      "approvalReasons": [
+        "CHECKPOINT_BATCH",
+        "EXTERNAL_FLOW_CASE"
+      ],
+      "summary": "External booking flow preserved; operator should confirm front-only handling."
+    },
+    {
+      "leadKey": "amberlegalgroup.com",
+      "currentDecision": "AUDIT_ONLY",
+      "approvalReasons": [
+        "CONFLICTING_SCORES",
+        "LOW_CONFIDENCE_BORDERLINE"
+      ],
+      "summary": "Value exists, but feasibility and confidence remain borderline."
+    },
+    {
+      "leadKey": "cedarsmiles.com",
+      "currentDecision": "DEMO_EDITABLE_CONTENT",
+      "approvalReasons": [
+        "CHECKPOINT_BATCH"
+      ],
+      "summary": "Editable blocks look defensible within brochure-like scope."
+    },
+    {
+      "leadKey": "ivybeautyhouse.com",
+      "currentDecision": "DEMO_EDITABLE_CONTENT",
+      "approvalReasons": [
+        "CHECKPOINT_BATCH"
+      ],
+      "summary": "Good content sufficiency and low enough complexity for limited editable content."
+    },
+    {
+      "leadKey": "beaconfamilylaw.com",
+      "currentDecision": "AUDIT_ONLY",
+      "approvalReasons": [
+        "CONFLICTING_SCORES"
+      ],
+      "summary": "Commercial opportunity exists, but information architecture and clarity remain inconsistent."
+    },
+    {
+      "leadKey": "glowstudio.example",
+      "currentDecision": "DEMO_FRONT_ONLY",
+      "approvalReasons": [
+        "CHECKPOINT_BATCH"
+      ],
+      "summary": "Simple brochure scope with clear redesign value and limited page count."
+    },
+    {
+      "leadKey": "harbordental.example",
+      "currentDecision": "DEMO_FRONT_ONLY",
+      "approvalReasons": [
+        "CHECKPOINT_BATCH",
+        "EXTERNAL_FLOW_CASE"
+      ],
+      "summary": "Third-party booking must stay external; operator approval required before preview."
+    },
+    {
+      "leadKey": "northshorelegal.example",
+      "currentDecision": "AUDIT_ONLY",
+      "approvalReasons": [
+        "LOW_CONFIDENCE_BORDERLINE"
+      ],
+      "summary": "Case sits on the line between audit-only and buildable, but confidence remains low."
+    },
+    {
+      "leadKey": "willowmedspa.example",
+      "currentDecision": "DEMO_EDITABLE_CONTENT",
+      "approvalReasons": [
+        "CHECKPOINT_BATCH"
+      ],
+      "summary": "Gallery, prices and services appear supportable without widening scope."
+    }
+  ],
+  "summary": "Checkpoint batch 01 for 10 leads. Per-lead verdicts required before buildable items continue toward preview.",
+  "sourceRefs": [
+    {
+      "artifactKind": "run-request",
+      "ref": "packages/schemas/run-request.example.json"
+    },
+    {
+      "artifactKind": "decision-bundle",
+      "ref": "artifacts/decision/run_2026_03_31_checkpoint_batch_01.bundle.json"
+    }
+  ],
+  "createdAt": "2026-03-31T11:05:00Z",
+  "status": "open"
+}

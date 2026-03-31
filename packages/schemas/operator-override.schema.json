@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/operator-override.schema.json",
+  "title": "OperatorOverride",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "scope": {
+      "type": "string",
+      "enum": [
+        "run",
+        "lead",
+        "batch"
+      ]
+    },
+    "targetArtifactKind": {
+      "type": "string",
+      "enum": [
+        "decision",
+        "design-seed",
+        "redesign-brief",
+        "demo-build-plan",
+        "run-manifest"
+      ]
+    },
+    "overrideType": {
+      "type": "string",
+      "enum": [
+        "downgrade-decision",
+        "constrain-editable-scope",
+        "constrain-page-scope",
+        "constrain-section-scope",
+        "pin-preset",
+        "pin-design-direction",
+        "preserve-external-flow",
+        "add-note",
+        "add-assumption",
+        "add-reference"
+      ]
+    }
+  },
+  "properties": {
+    "overrideId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "leadKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "$ref": "#/definitions/scope"
+    },
+    "targetArtifactKind": {
+      "$ref": "#/definitions/targetArtifactKind"
+    },
+    "overrideType": {
+      "$ref": "#/definitions/overrideType"
+    },
+    "payload": {
+      "type": "object"
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requiresReevaluation": {
+      "type": "boolean"
+    },
+    "createdBy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceRef": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "overrideId",
+    "runId",
+    "scope",
+    "targetArtifactKind",
+    "overrideType",
+    "payload",
+    "rationale",
+    "requiresReevaluation",
+    "createdBy",
+    "createdAt",
+    "sourceRef"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "scope": {
+            "const": "lead"
+          }
+        },
+        "required": [
+          "scope"
+        ]
+      },
+      "then": {
+        "required": [
+          "leadKey"
+        ]
+      }
+    }
+  ]
+}

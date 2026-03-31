@@ -1,0 +1,89 @@
+{
+  "auditLogId": "audit-log_run_2026_03_31_checkpoint_batch_01",
+  "runId": "run_2026_03_31_checkpoint_batch_01",
+  "events": [
+    {
+      "eventId": "evt_001",
+      "eventType": "RUN_REQUESTED",
+      "timestamp": "2026-03-31T09:50:00Z",
+      "actorType": "operator",
+      "operatorId": "ops.alex",
+      "artifactRefs": [
+        {
+          "kind": "run-request",
+          "ref": "packages/schemas/run-request.example.json"
+        }
+      ],
+      "notes": "Checkpointed run requested with preview boundary and safe limits."
+    },
+    {
+      "eventId": "evt_002",
+      "eventType": "RUN_STARTED",
+      "timestamp": "2026-03-31T09:51:10Z",
+      "actorType": "system",
+      "notes": "Run manifest created and initial intake started."
+    },
+    {
+      "eventId": "evt_003",
+      "eventType": "APPROVAL_REQUESTED",
+      "timestamp": "2026-03-31T11:05:00Z",
+      "actorType": "system",
+      "batchId": "checkpoint_batch_01",
+      "artifactRefs": [
+        {
+          "kind": "approval-request",
+          "ref": "packages/schemas/approval-request.example.json"
+        }
+      ],
+      "notes": "Checkpoint batch of 10 leads opened for operator review."
+    },
+    {
+      "eventId": "evt_004",
+      "eventType": "APPROVAL_RESPONDED",
+      "timestamp": "2026-03-31T11:22:00Z",
+      "actorType": "operator",
+      "operatorId": "ops.alex",
+      "batchId": "checkpoint_batch_01",
+      "artifactRefs": [
+        {
+          "kind": "approval-response",
+          "ref": "packages/schemas/approval-response.example.json"
+        }
+      ],
+      "notes": "Mixed per-lead verdicts recorded for checkpoint batch 01."
+    },
+    {
+      "eventId": "evt_005",
+      "eventType": "OVERRIDE_APPLIED",
+      "timestamp": "2026-03-31T11:35:00Z",
+      "actorType": "operator",
+      "operatorId": "ops.alex",
+      "leadKey": "luminoussalon.com",
+      "artifactRefs": [
+        {
+          "kind": "operator-override",
+          "ref": "packages/schemas/operator-override.example.json"
+        }
+      ],
+      "notes": "Page scope constrained to home plus booking surface."
+    },
+    {
+      "eventId": "evt_006",
+      "eventType": "RUN_RESUMED",
+      "timestamp": "2026-03-31T11:41:00Z",
+      "actorType": "system",
+      "notes": "Run resumed for approved and constrained leads after control artifacts were linked."
+    },
+    {
+      "eventId": "evt_007",
+      "eventType": "NOTE_ADDED",
+      "timestamp": "2026-03-31T11:42:10Z",
+      "actorType": "operator",
+      "operatorId": "ops.alex",
+      "leadKey": "harbordental.example",
+      "notes": "Keep booking CTA external in preview and review outputs."
+    }
+  ],
+  "createdAt": "2026-03-31T09:50:00Z",
+  "updatedAt": "2026-03-31T11:42:10Z"
+}
