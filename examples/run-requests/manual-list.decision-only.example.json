@@ -1,0 +1,20 @@
+{
+  "requestId": "run-request_manual_list_decision_only_sample",
+  "operatorId": "local.operator",
+  "workMode": "autopilot",
+  "inputMode": "manual-list",
+  "inputRefs": [
+    {
+      "kind": "source-file",
+      "ref": "../inputs/manual-list.sample.csv",
+      "notes": "Sample local input for the first runnable slice."
+    }
+  ],
+  "executionBoundary": "decision",
+  "safeLimits": {
+    "maxLeads": 10,
+    "maxPagesPerLead": 3
+  },
+  "operatorNotes": "First local runnable slice. Stop after decision artifacts only.",
+  "createdAt": "2026-03-31T12:00:00Z"
+}

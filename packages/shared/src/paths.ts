@@ -1,0 +1,34 @@
+import path from "node:path";
+
+export interface RunPaths {
+  runDir: string;
+  manifestPath: string;
+  runRequestPath: string;
+  auditLogPath: string;
+  leadsDir: string;
+  snapshotsDir: string;
+  qualificationDir: string;
+  decisionDir: string;
+  screenshotsDir: string;
+}
+
+export function getRunPaths(repoRoot: string, runId: string): RunPaths {
+  const runDir = path.join(repoRoot, ".artifacts", "runs", runId);
+
+  return {
+    runDir,
+    manifestPath: path.join(runDir, "run-manifest.json"),
+    runRequestPath: path.join(runDir, "control", "run-request.json"),
+    auditLogPath: path.join(runDir, "control", "operator-audit-log.json"),
+    leadsDir: path.join(runDir, "leads"),
+    snapshotsDir: path.join(runDir, "snapshots"),
+    qualificationDir: path.join(runDir, "qualification"),
+    decisionDir: path.join(runDir, "decision"),
+    screenshotsDir: path.join(runDir, "screenshots")
+  };
+}
+
+export function toArtifactRef(repoRoot: string, absolutePath: string): string {
+  const relativePath = path.relative(repoRoot, absolutePath);
+  return relativePath.split(path.sep).join("/");
+}

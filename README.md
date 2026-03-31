@@ -79,3 +79,51 @@ Stage `3` зафиксировал preset system + design seed layer. Stage `4` 
 - Источник именованных enum'ов, reason codes, manifest contracts, preset data rules, generation handoff boundaries, preview/review linkage, operator control-plane contracts, authored first-party skills и support artifacts для readiness/verification.
 - Основа для последующего verification и выбора первого implementation slice без dashboard, anti-theft, полноценной CMS/CRM логики и provider-specific deploy adapters.
 - Источник human-editable preset data, design seed guidance, generation orchestration contracts, preview records, review dossier contracts, operator intent / approval / audit artifacts, project-specific skill source files и support validation/install artifacts, но не runtime adapters, не codegen config и не production design system.
+
+## First runnable slice
+
+Первый executable slice уже рассчитан на локальный запуск и покрывает только узкий путь:
+
+- structured `run-request`
+- `manual-list` intake из CSV / JSON / TXT
+- normalization + dedupe
+- Playwright site snapshot
+- deterministic qualification
+- deterministic decision
+- artifact write в `.artifacts/runs/<runId>/...`
+
+Что нужно локально:
+
+```bash
+npm install
+npx playwright install chromium
+```
+
+Как запустить sample run:
+
+```bash
+npm run cli -- run -- --request examples/run-requests/manual-list.decision-only.example.json
+```
+
+Рабочий эквивалент без `--request` passthrough:
+
+```bash
+npm run cli -- run examples/run-requests/manual-list.decision-only.example.json
+```
+
+Где смотреть результат:
+
+- `.artifacts/runs/<runId>/run-manifest.json`
+- `.artifacts/runs/<runId>/control/operator-audit-log.json`
+- `.artifacts/runs/<runId>/leads/`
+- `.artifacts/runs/<runId>/snapshots/`
+- `.artifacts/runs/<runId>/qualification/`
+- `.artifacts/runs/<runId>/decision/`
+- `.artifacts/runs/<runId>/screenshots/`
+
+Ограничения первого slice:
+
+- реализован только `inputMode = manual-list`
+- реализован только `executionBoundary = decision`
+- нет Firecrawl / Apify adapters
+- нет design-seed / brief / build-plan / preview / review runtime
