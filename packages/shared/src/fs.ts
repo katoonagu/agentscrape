@@ -14,6 +14,11 @@ export async function writeJsonFile(filePath: string, data: unknown): Promise<vo
   await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
+export async function writeTextFile(filePath: string, data: string): Promise<void> {
+  await fs.ensureDir(path.dirname(filePath));
+  await fs.writeFile(filePath, data, "utf8");
+}
+
 export async function ensureDirectory(dirPath: string): Promise<void> {
   await fs.ensureDir(dirPath);
 }

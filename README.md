@@ -127,3 +127,34 @@ npm run cli -- run examples/run-requests/manual-list.decision-only.example.json
 - реализован только `executionBoundary = decision`
 - нет Firecrawl / Apify adapters
 - нет design-seed / brief / build-plan / preview / review runtime
+- 
+## Runnable slice 2
+
+Generation-planning boundary is now available in addition to the existing decision-only slice.
+
+Setup:
+
+```bash
+npm install
+npx playwright install chromium
+```
+
+Run the generation example:
+
+```bash
+npm run cli -- run -- --request examples/run-requests/manual-list.generation.example.json
+```
+
+Artifacts for the generation boundary are written to:
+
+- `.artifacts/runs/<runId>/design-seeds/`
+- `.artifacts/runs/<runId>/briefs/`
+- `.artifacts/runs/<runId>/build-plans/`
+- `.artifacts/runs/<runId>/projections/design-brief/`
+
+Current slice 2 limits:
+
+- still supports only `inputMode = manual-list`
+- supports `executionBoundary = decision` and `executionBoundary = generation`
+- creates planning artifacts only, not website code
+- does not implement preview deploy, review dossier runtime, or approval engine runtime

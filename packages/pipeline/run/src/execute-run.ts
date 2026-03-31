@@ -3,13 +3,18 @@ import fs from "fs-extra";
 import { chromium, type Browser } from "playwright";
 import type {
   DecisionArtifact,
+  DemoBuildPlanArtifact,
+  DesignSeedArtifact,
   LeadArtifact,
   OperatorAuditEvent,
   OperatorAuditLog,
+  QualificationArtifact,
+  RedesignBriefArtifact,
   RunManifest,
   RunManifestLeadEntry,
   RunRequest,
-  RunState
+  RunState,
+  SiteSnapshotArtifact
 } from "../../../shared/src/contracts";
 import { readJsonFile, writeJsonFile, ensureDirectory } from "../../../shared/src/fs";
 import { createId, createRunId, nowIso } from "../../../shared/src/ids";
@@ -20,15 +25,31 @@ import { normalizeLeads, type NormalizedLeadRecord } from "../../intake/src/norm
 import { captureSiteSnapshot } from "../../snapshot/src/capture-site-snapshot";
 import { qualifyLead } from "../../qualification/src/qualify-lead";
 import { decideLead } from "../../decision/src/decide-lead";
+import type { SnapshotExecutionResult } from "../../snapshot/src/capture-site-snapshot";
+import { loadPresets } from "../../generation/src/load-presets";
+import { selectPrimaryPreset } from "../../generation/src/select-primary-preset";
+import { resolveDesignSeed } from "../../generation/src/resolve-design-seed";
+import { buildRedesignBrief } from "../../generation/src/build-redesign-brief";
+import { buildDemoBuildPlan } from "../../generation/src/build-demo-build-plan";
+import { renderDesignBriefProjection } from "../../generation/src/render-design-brief";
 
 interface RuntimeLeadContext {
   record: NormalizedLeadRecord;
+  artifactBaseName: string;
   leadPath: string;
   snapshotPath?: string;
   qualificationPath?: string;
   decisionPath?: string;
+  designSeedPath?: string;
+  redesignBriefPath?: string;
+  demoBuildPlanPath?: string;
+  designBriefProjectionPath?: string;
   screenshotDir: string;
   manifestIndex: number;
+  snapshotArtifact?: SiteSnapshotArtifact;
+  snapshotResult?: SnapshotExecutionResult;
+  qualificationArtifact?: QualificationArtifact;
+  decisionArtifact?: DecisionArtifact;
 }
 
 export async function executeRun(requestPath: string, repoRoot: string): Promise<{ runId: string; runDir: string }> {
@@ -148,7 +169,20 @@ export async function executeRun(requestPath: string, repoRoot: string): Promise
       await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
     }
 
-    manifest.runState = "RUN_DONE";
+    let generationPartialFailure = false;
+    if (request.executionBoundary === "generation") {
+      generationPartialFailure = await continueGenerationPlanning({
+        request,
+        repoRoot,
+        runPaths,
+        validator,
+        runtimeLeads,
+        manifest,
+        auditLog
+      });
+    }
+
+    manifest.runState = generationPartialFailure ? "PARTIAL_DONE" : "RUN_DONE";
     recalculateManifestCounts(manifest, runtimeLeads);
     await persistManifest(validator, runPaths.manifestPath, manifest);
     await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
@@ -166,9 +200,9 @@ function assertRuntimeSupport(request: RunRequest): void {
     throw new Error(`Unsupported inputMode "${request.inputMode}". This slice implements only "manual-list".`);
   }
 
-  if (request.executionBoundary !== "decision") {
+  if (!["decision", "generation"].includes(request.executionBoundary)) {
     throw new Error(
-      `Unsupported executionBoundary "${request.executionBoundary}". This slice stops only at "decision".`
+      `Unsupported executionBoundary "${request.executionBoundary}". This slice implements only "decision" and "generation".`
     );
   }
 }
@@ -189,9 +223,11 @@ function buildRuntimeLeadContexts(
   return normalizedLeads.map((record, index) => {
     const leadPath = path.join(runPaths.leadsDir, record.artifactFileName);
     const screenshotDir = path.join(runPaths.screenshotsDir, record.lead.leadKey);
+    const artifactBaseName = path.parse(record.artifactFileName).name;
 
     return {
       record,
+      artifactBaseName,
       leadPath,
       screenshotDir,
       manifestIndex: index
@@ -216,7 +252,8 @@ async function processLead(params: {
 
   if (!context.record.shouldInspect) {
     const decision = decideLead({ lead });
-    context.decisionPath = path.join(runPaths.decisionDir, `${path.parse(context.record.artifactFileName).name}.decision.json`);
+    context.decisionArtifact = decision;
+    context.decisionPath = path.join(runPaths.decisionDir, `${context.artifactBaseName}.decision.json`);
     await persistDecisionArtifact(validator, decision, context.decisionPath);
     manifestLead.currentState = "DECISION_MADE";
     manifestLead.decision = decision.finalDecision;
@@ -240,7 +277,9 @@ async function processLead(params: {
       screenshotsRoot: context.screenshotDir,
       maxPages: request.safeLimits?.maxPagesPerLead ?? 3
     });
-    context.snapshotPath = path.join(runPaths.snapshotsDir, `${path.parse(context.record.artifactFileName).name}.site-snapshot.json`);
+    context.snapshotResult = snapshotResult;
+    context.snapshotArtifact = snapshotResult.artifact;
+    context.snapshotPath = path.join(runPaths.snapshotsDir, `${context.artifactBaseName}.site-snapshot.json`);
     await validator.validate("site-snapshot", snapshotResult.artifact);
     await writeJsonFile(context.snapshotPath, snapshotResult.artifact);
 
@@ -249,9 +288,10 @@ async function processLead(params: {
       snapshotResult,
       snapshotRef: toArtifactRef(repoRoot, context.snapshotPath)
     });
+    context.qualificationArtifact = qualification;
     context.qualificationPath = path.join(
       runPaths.qualificationDir,
-      `${path.parse(context.record.artifactFileName).name}.qualification.json`
+      `${context.artifactBaseName}.qualification.json`
     );
     await persistQualificationArtifact(validator, qualification, context.qualificationPath);
 
@@ -260,8 +300,9 @@ async function processLead(params: {
       qualification,
       snapshotResult
     });
+    context.decisionArtifact = decision;
 
-    context.decisionPath = path.join(runPaths.decisionDir, `${path.parse(context.record.artifactFileName).name}.decision.json`);
+    context.decisionPath = path.join(runPaths.decisionDir, `${context.artifactBaseName}.decision.json`);
     await persistDecisionArtifact(validator, decision, context.decisionPath);
 
     lead.currentState = "DECISION_MADE";
@@ -282,7 +323,8 @@ async function processLead(params: {
 
     const fallbackDecision = decideLead({ lead });
     fallbackDecision.notes = `Fallback decision after runtime inspection failure: ${message}`;
-    context.decisionPath = path.join(runPaths.decisionDir, `${path.parse(context.record.artifactFileName).name}.decision.json`);
+    context.decisionArtifact = fallbackDecision;
+    context.decisionPath = path.join(runPaths.decisionDir, `${context.artifactBaseName}.decision.json`);
     await persistDecisionArtifact(validator, fallbackDecision, context.decisionPath);
 
     lead.currentState = "DECISION_MADE";
@@ -294,6 +336,187 @@ async function processLead(params: {
     manifestLead.decisionRef = toArtifactRef(repoRoot, context.decisionPath);
     manifestLead.notes = fallbackDecision.notes;
   }
+}
+
+async function continueGenerationPlanning(params: {
+  request: RunRequest;
+  repoRoot: string;
+  runPaths: ReturnType<typeof getRunPaths>;
+  validator: SchemaValidator;
+  runtimeLeads: RuntimeLeadContext[];
+  manifest: RunManifest;
+  auditLog: OperatorAuditLog;
+}): Promise<boolean> {
+  const { request, repoRoot, runPaths, validator, runtimeLeads, manifest, auditLog } = params;
+  const buildableLeads = runtimeLeads.filter((context) =>
+    isBuildableDecision(context.decisionArtifact?.finalDecision)
+  );
+
+  if (buildableLeads.length === 0) {
+    addAuditEvent(auditLog, {
+      eventType: "NOTE_ADDED",
+      actorType: "system",
+      notes: "Generation boundary requested but no buildable leads were eligible after decision."
+    });
+    await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
+    return false;
+  }
+
+  const allowedBuildableLeads =
+    request.safeLimits?.maxBuildableLeads && request.safeLimits.maxBuildableLeads > 0
+      ? buildableLeads.slice(0, request.safeLimits.maxBuildableLeads)
+      : buildableLeads;
+
+  if (allowedBuildableLeads.length !== buildableLeads.length) {
+    addAuditEvent(auditLog, {
+      eventType: "NOTE_ADDED",
+      actorType: "system",
+      notes: `Applied safe limit maxBuildableLeads=${request.safeLimits?.maxBuildableLeads}; generation planning will continue for ${allowedBuildableLeads.length} of ${buildableLeads.length} buildable leads.`
+    });
+
+    for (const skippedContext of buildableLeads.slice(allowedBuildableLeads.length)) {
+      const manifestLead = manifest.leads[skippedContext.manifestIndex];
+      skippedContext.record.lead.currentState = "DECISION_MADE";
+      skippedContext.record.lead.notes = appendNote(
+        skippedContext.record.lead.notes,
+        `Generation planning skipped because maxBuildableLeads=${request.safeLimits?.maxBuildableLeads} was reached.`
+      );
+      await persistLeadArtifact(validator, skippedContext.record.lead, skippedContext.leadPath);
+      manifestLead.notes = appendNote(
+        manifestLead.notes,
+        `Generation planning skipped because maxBuildableLeads=${request.safeLimits?.maxBuildableLeads} was reached.`
+      );
+    }
+  }
+
+  const presets = await loadPresets(repoRoot, validator);
+  const globalDefaults = presets.find((preset) => preset.id === "global-defaults");
+  if (!globalDefaults) {
+    throw new Error("Active preset set does not contain global-defaults.");
+  }
+
+  let partialFailure = false;
+
+  for (const context of allowedBuildableLeads) {
+    const manifestLead = manifest.leads[context.manifestIndex];
+    try {
+      if (!context.decisionArtifact || !context.snapshotResult || !context.qualificationArtifact) {
+        throw new Error("Generation planning requires existing decision, qualification, and snapshot data.");
+      }
+
+      const selection = selectPrimaryPreset({
+        lead: context.record.lead,
+        qualification: context.qualificationArtifact,
+        snapshotResult: context.snapshotResult,
+        presets
+      });
+
+      addAuditEvent(auditLog, {
+        eventType: "NOTE_ADDED",
+        actorType: "system",
+        leadKey: context.record.lead.leadKey,
+        notes: selection.usedFallback
+          ? `Preset resolution fell back to global-defaults. ${selection.notes.join(" ")}`
+          : `Preset resolution selected ${selection.primaryPresetId}. ${selection.notes.join(" ")}`
+      });
+
+      const designSeed = resolveDesignSeed({
+        decision: context.decisionArtifact,
+        qualification: context.qualificationArtifact,
+        snapshotResult: context.snapshotResult,
+        request,
+        globalDefaults,
+        selection
+      });
+      context.designSeedPath = path.join(runPaths.designSeedsDir, `${context.artifactBaseName}.design-seed.json`);
+      await persistDesignSeedArtifact(validator, designSeed, context.designSeedPath);
+
+      const redesignBrief = buildRedesignBrief({
+        decision: context.decisionArtifact,
+        qualification: context.qualificationArtifact,
+        snapshotResult: context.snapshotResult,
+        designSeed,
+        designSeedRef: toArtifactRef(repoRoot, context.designSeedPath)
+      });
+      context.redesignBriefPath = path.join(runPaths.briefsDir, `${context.artifactBaseName}.redesign-brief.json`);
+      await persistRedesignBriefArtifact(validator, redesignBrief, context.redesignBriefPath);
+
+      const demoBuildPlan = buildDemoBuildPlan({
+        decision: context.decisionArtifact,
+        designSeed,
+        redesignBrief,
+        qualification: context.qualificationArtifact,
+        snapshotResult: context.snapshotResult,
+        request,
+        designSeedRef: toArtifactRef(repoRoot, context.designSeedPath),
+        redesignBriefRef: toArtifactRef(repoRoot, context.redesignBriefPath)
+      });
+      context.demoBuildPlanPath = path.join(runPaths.buildPlansDir, `${context.artifactBaseName}.demo-build-plan.json`);
+      await persistDemoBuildPlanArtifact(validator, demoBuildPlan, context.demoBuildPlanPath);
+
+      context.designBriefProjectionPath = path.join(
+        runPaths.designBriefProjectionDir,
+        `${context.record.lead.leadKey}.DESIGN.md`
+      );
+      await renderDesignBriefProjection(redesignBrief, context.designBriefProjectionPath);
+
+      context.record.lead.currentState = "GENERATING_DEMO";
+      context.record.lead.notes = appendNote(context.record.lead.notes, "Generation-planning artifacts created.");
+      await persistLeadArtifact(validator, context.record.lead, context.leadPath);
+
+      manifestLead.currentState = "GENERATING_DEMO";
+      manifestLead.designSeedRef = toArtifactRef(repoRoot, context.designSeedPath);
+      manifestLead.redesignBriefRef = toArtifactRef(repoRoot, context.redesignBriefPath);
+      manifestLead.demoBuildPlanRef = toArtifactRef(repoRoot, context.demoBuildPlanPath);
+      manifestLead.notes = appendNote(
+        manifestLead.notes,
+        demoBuildPlan.generationReady
+          ? "Generation-planning artifacts created."
+          : `Generation-planning artifacts created with stop reasons: ${demoBuildPlan.stopReasons.join(", ")}.`
+      );
+
+      addAuditEvent(auditLog, {
+        eventType: "NOTE_ADDED",
+        actorType: "system",
+        leadKey: context.record.lead.leadKey,
+        artifactRefs: [
+          { kind: "design-seed", ref: toArtifactRef(repoRoot, context.designSeedPath) },
+          { kind: "redesign-brief", ref: toArtifactRef(repoRoot, context.redesignBriefPath) },
+          { kind: "demo-build-plan", ref: toArtifactRef(repoRoot, context.demoBuildPlanPath) }
+        ],
+        notes: demoBuildPlan.generationReady
+          ? "Generation-planning artifacts created for buildable lead."
+          : `Generation-planning artifacts created but not generation-ready: ${demoBuildPlan.stopReasons.join(", ")}.`
+      });
+    } catch (error) {
+      partialFailure = true;
+      const message = error instanceof Error ? error.message : String(error);
+      context.record.lead.currentState = "DECISION_MADE";
+      context.record.lead.notes = appendNote(context.record.lead.notes, `Generation-planning failed: ${message}`);
+      await persistLeadArtifact(validator, context.record.lead, context.leadPath);
+      manifestLead.currentState = "DECISION_MADE";
+      manifestLead.notes = appendNote(manifestLead.notes, `Generation-planning failed: ${message}`);
+      addAuditEvent(auditLog, {
+        eventType: "NOTE_ADDED",
+        actorType: "system",
+        leadKey: context.record.lead.leadKey,
+        notes: `Generation-planning failed for buildable lead: ${message}`
+      });
+    }
+
+    await persistManifest(validator, runPaths.manifestPath, manifest);
+    await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
+  }
+
+  return partialFailure;
+}
+
+function isBuildableDecision(decision: DecisionArtifact["finalDecision"] | undefined): boolean {
+  return decision === "DEMO_FRONT_ONLY" || decision === "DEMO_EDITABLE_CONTENT";
+}
+
+function appendNote(existing: string | undefined, note: string): string {
+  return existing ? `${existing} ${note}` : note;
 }
 
 async function persistLeadArtifact(validator: SchemaValidator, lead: LeadArtifact, filePath: string): Promise<void> {
@@ -313,6 +536,33 @@ async function persistQualificationArtifact(
 async function persistDecisionArtifact(validator: SchemaValidator, decision: DecisionArtifact, filePath: string): Promise<void> {
   await validator.validate("decision", decision);
   await writeJsonFile(filePath, decision);
+}
+
+async function persistDesignSeedArtifact(
+  validator: SchemaValidator,
+  designSeed: DesignSeedArtifact,
+  filePath: string
+): Promise<void> {
+  await validator.validate("design-seed", designSeed);
+  await writeJsonFile(filePath, designSeed);
+}
+
+async function persistRedesignBriefArtifact(
+  validator: SchemaValidator,
+  redesignBrief: RedesignBriefArtifact,
+  filePath: string
+): Promise<void> {
+  await validator.validate("redesign-brief", redesignBrief);
+  await writeJsonFile(filePath, redesignBrief);
+}
+
+async function persistDemoBuildPlanArtifact(
+  validator: SchemaValidator,
+  demoBuildPlan: DemoBuildPlanArtifact,
+  filePath: string
+): Promise<void> {
+  await validator.validate("demo-build-plan", demoBuildPlan);
+  await writeJsonFile(filePath, demoBuildPlan);
 }
 
 async function persistManifest(validator: SchemaValidator, filePath: string, manifest: RunManifest): Promise<void> {

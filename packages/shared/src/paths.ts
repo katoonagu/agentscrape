@@ -9,6 +9,10 @@ export interface RunPaths {
   snapshotsDir: string;
   qualificationDir: string;
   decisionDir: string;
+  designSeedsDir: string;
+  briefsDir: string;
+  buildPlansDir: string;
+  designBriefProjectionDir: string;
   screenshotsDir: string;
 }
 
@@ -24,6 +28,10 @@ export function getRunPaths(repoRoot: string, runId: string): RunPaths {
     snapshotsDir: path.join(runDir, "snapshots"),
     qualificationDir: path.join(runDir, "qualification"),
     decisionDir: path.join(runDir, "decision"),
+    designSeedsDir: path.join(runDir, "design-seeds"),
+    briefsDir: path.join(runDir, "briefs"),
+    buildPlansDir: path.join(runDir, "build-plans"),
+    designBriefProjectionDir: path.join(runDir, "projections", "design-brief"),
     screenshotsDir: path.join(runDir, "screenshots")
   };
 }

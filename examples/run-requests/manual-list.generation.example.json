@@ -1,0 +1,21 @@
+{
+  "requestId": "run-request_manual_list_generation_sample",
+  "operatorId": "local.operator",
+  "workMode": "autopilot",
+  "inputMode": "manual-list",
+  "inputRefs": [
+    {
+      "kind": "source-file",
+      "ref": "../inputs/manual-list.sample.csv",
+      "notes": "Sample local input for the generation-planning slice."
+    }
+  ],
+  "executionBoundary": "generation",
+  "safeLimits": {
+    "maxLeads": 10,
+    "maxBuildableLeads": 2,
+    "maxPagesPerLead": 3
+  },
+  "operatorNotes": "Second local runnable slice. Stop after design seed, brief, build plan, and DESIGN projection.",
+  "createdAt": "2026-03-31T12:15:00Z"
+}

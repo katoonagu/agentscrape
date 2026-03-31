@@ -52,6 +52,46 @@ export type EditableBlock =
   | "faq"
   | "gallery"
   | "cta";
+export type DesignSeedConfidence = "high" | "medium" | "low";
+export type AppliedLayer =
+  | "global-defaults"
+  | "niche-preset"
+  | "existing-brand"
+  | "lead-override"
+  | "operator-override";
+export type ExternalFlowMode =
+  | "not-applicable"
+  | "preserved-integration-point"
+  | "preserved-booking-surface"
+  | "preserved-cta-path";
+export type BriefPagePlanType = "multi-page-limited" | "single-page-sections";
+export type BriefPageType = "home" | "key-service" | "contact-booking" | "single-page";
+export type BuildGenerationMode = "front-only" | "limited-editable-content";
+export type ContentSourceType =
+  | "verified-current-site"
+  | "qualification-finding"
+  | "preset-direction"
+  | "operator-approved-note"
+  | "placeholder-assumption";
+export type PlaceholderGapType =
+  | "copy-gap"
+  | "price-gap"
+  | "staff-gap"
+  | "social-proof-gap"
+  | "regulatory-gap"
+  | "image-gap"
+  | "service-detail-gap"
+  | "other";
+export type BuildStopReason =
+  | "MISSING_GENERATION_ELIGIBILITY"
+  | "MISSING_REQUIRED_INPUT"
+  | "EDITABLE_SCOPE_EXCEEDED"
+  | "EXTERNAL_FLOW_AMBIGUOUS"
+  | "PAGE_SCOPE_NOT_DEFENSIBLE"
+  | "CONTENT_GAP_MATERIAL"
+  | "LOW_SEED_CONFIDENCE"
+  | "DIRECTION_CONFLICT_WITH_SITE_REALITY"
+  | "COMPLEXITY_BORDERLINE";
 
 export interface Reference {
   kind: string;
@@ -168,6 +208,173 @@ export interface DecisionArtifact {
   editableBlocks?: EditableBlock[];
   demoScopeNote?: string;
   notes?: string;
+}
+
+export interface DesignSeedArtifact {
+  seedId: string;
+  leadKey: string;
+  primaryPresetId: string;
+  seedConfidence: DesignSeedConfidence;
+  sourceSummary: {
+    appliedLayers: AppliedLayer[];
+    brandCluesStrength: "weak" | "medium" | "strong";
+    operatorReferencesUsed: boolean;
+    notes?: string[];
+  };
+  tasteProfile: {
+    designVariance: number;
+    motionIntensity: number;
+    visualDensity: number;
+  };
+  copyProfile: {
+    tone: string;
+    ctaBias: string;
+    trustEmphasis: string;
+    headlineStyle: string;
+  };
+  layoutProfile: {
+    requiredSections: string[];
+    optionalSections: string[];
+    orderingBias: string[];
+  };
+  visualDirection: string[];
+  paletteDirection: string[];
+  typographyDirection: string[];
+  imageryDirection: string[];
+  preservedConstraints: string[];
+  editableScope: EditableBlock[];
+  riskFlags: string[];
+  requiresHumanApproval: boolean;
+  assumptions?: string[];
+}
+
+export interface RedesignBriefArtifact {
+  briefId: string;
+  leadKey: string;
+  decisionType: Extract<PipelineDecision, "DEMO_FRONT_ONLY" | "DEMO_EDITABLE_CONTENT">;
+  designSeedRef: string;
+  problemSummary: string;
+  redesignGoals: string[];
+  preservedConstraints: string[];
+  externalFlowHandling: {
+    mode: ExternalFlowMode;
+    notes: string;
+  };
+  editableScope: EditableBlock[];
+  pagePlanSummary: {
+    planType: BriefPagePlanType;
+    plannedPages: Array<{
+      pageKey: string;
+      pageType: BriefPageType;
+      required: boolean;
+    }>;
+    rationale: string;
+  };
+  sectionPlan: Array<{
+    scopeRef: string;
+    sections: string[];
+    notes?: string;
+  }>;
+  copyDirection: string[];
+  visualDirection: string[];
+  nonGoals: string[];
+  assumptions?: string[];
+  approvalRequired: boolean;
+}
+
+export interface DemoBuildPlanArtifact {
+  buildPlanId: string;
+  leadKey: string;
+  decisionType: Extract<PipelineDecision, "DEMO_FRONT_ONLY" | "DEMO_EDITABLE_CONTENT">;
+  generationMode: BuildGenerationMode;
+  designSeedRef: string;
+  redesignBriefRef: string;
+  pagePlan: {
+    planType: BriefPagePlanType;
+    pages: Array<{
+      pageKey: string;
+      pageType: BriefPageType;
+      sourceBasis: string;
+      required: boolean;
+    }>;
+    rationale?: string;
+  };
+  sectionPlan: Array<{
+    pageKey: string;
+    sections: string[];
+    editableBlocks?: EditableBlock[];
+    notes?: string;
+  }>;
+  contentSources: Array<{
+    scopeRef: string;
+    sourceType: ContentSourceType;
+    notes: string;
+  }>;
+  editableScope: EditableBlock[];
+  externalFlowHandling: {
+    mode: ExternalFlowMode;
+    notes: string;
+  };
+  placeholders?: Array<{
+    scopeRef: string;
+    gapType: PlaceholderGapType;
+    notes: string;
+    approvalRequired: boolean;
+  }>;
+  approvalRequired: boolean;
+  generationReady: boolean;
+  stopReasons: BuildStopReason[];
+  assumptions?: string[];
+}
+
+export interface NichePreset {
+  id: string;
+  label: string;
+  version: string;
+  status: "draft" | "active" | "deprecated";
+  applicability: {
+    positive_signals: string[];
+    negative_signals: string[];
+    typical_offers: string[];
+    site_clues: string[];
+  };
+  taste: {
+    design_variance: number;
+    motion_intensity: number;
+    visual_density: number;
+  };
+  copy: {
+    tone: string;
+    cta_bias: string;
+    trust_emphasis: string;
+    headline_style: string;
+  };
+  layout: {
+    required_sections: string[];
+    optional_sections: string[];
+    ordering_bias: string[];
+  };
+  qualification: {
+    complexity_bias: string;
+    editable_content_default: "discourage" | "allow-if-qualified" | "prefer-when-qualified";
+    external_flow_policy:
+      | "preserve-front-layer"
+      | "preserve-and-require-approval"
+      | "preserve-and-bias-front-only";
+  };
+  editingScope: {
+    allowed_editable_blocks: EditableBlock[];
+  };
+  designSeed: {
+    visual_direction: string[];
+    palette_direction: string[];
+    typography_direction: string[];
+    imagery_direction: string[];
+  };
+  approvalHints: {
+    manual_review_required_when: string[];
+    do_not_auto_apply_when: string[];
+  };
 }
 
 export interface RunManifestLeadEntry {

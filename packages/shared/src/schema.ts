@@ -3,10 +3,14 @@ import Ajv, { type ErrorObject, type ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
 import { readJsonFile } from "./fs";
 import type {
+  DemoBuildPlanArtifact,
+  DesignSeedArtifact,
   DecisionArtifact,
   LeadArtifact,
+  NichePreset,
   OperatorAuditLog,
   QualificationArtifact,
+  RedesignBriefArtifact,
   RunManifest,
   RunRequest,
   SiteSnapshotArtifact
@@ -17,6 +21,7 @@ export type SchemaName =
   | "approval-response"
   | "demo-build-plan"
   | "design-seed"
+  | "niche-preset"
   | "operator-override"
   | "preview-manifest"
   | "redesign-brief"
@@ -36,11 +41,12 @@ export type SchemaName =
 export interface SchemaTypeMap {
   "approval-request": unknown;
   "approval-response": unknown;
-  "demo-build-plan": unknown;
-  "design-seed": unknown;
+  "demo-build-plan": DemoBuildPlanArtifact;
+  "design-seed": DesignSeedArtifact;
+  "niche-preset": NichePreset;
   "operator-override": unknown;
   "preview-manifest": unknown;
-  "redesign-brief": unknown;
+  "redesign-brief": RedesignBriefArtifact;
   "review-dossier": unknown;
   "run-request": RunRequest;
   lead: LeadArtifact;
@@ -60,6 +66,7 @@ const SCHEMA_FILES: Record<SchemaName, string> = {
   "approval-response": "approval-response.schema.json",
   "demo-build-plan": "demo-build-plan.schema.json",
   "design-seed": "design-seed.schema.json",
+  "niche-preset": "niche-preset.schema.json",
   "operator-override": "operator-override.schema.json",
   "preview-manifest": "preview-manifest.schema.json",
   "redesign-brief": "redesign-brief.schema.json",
@@ -107,7 +114,10 @@ export class SchemaValidator {
       return existing;
     }
 
-    const schemaPath = path.join(this.repoRoot, "packages", "schemas", SCHEMA_FILES[schemaName]);
+    const schemaPath =
+      schemaName === "niche-preset"
+        ? path.join(this.repoRoot, "packages", "niche-presets", "_schema", "niche-preset.schema.json")
+        : path.join(this.repoRoot, "packages", "schemas", SCHEMA_FILES[schemaName]);
     const schema = (await readJsonFile<unknown>(schemaPath)) as object;
     const validator = this.ajv.compile<T>(schema);
     this.validators.set(schemaName, validator);
