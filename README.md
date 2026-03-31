@@ -158,3 +158,29 @@ Current slice 2 limits:
 - supports `executionBoundary = decision` and `executionBoundary = generation`
 - creates planning artifacts only, not website code
 - does not implement preview deploy, review dossier runtime, or approval engine runtime
+
+## Runtime hardening
+
+Rerun safety:
+
+- if `.artifacts/runs/<runId>/` already exists, the pipeline now fails fast by default
+- to rerun with the same `requestId` or `runId`, use an explicit overwrite flag
+- overwrite removes the old run directory completely before the new run starts
+
+Overwrite rerun example:
+
+```bash
+npm run cli -- run -- --request examples/run-requests/manual-list.generation.example.json --replace-existing-run
+```
+
+Run-output verification:
+
+```bash
+npm run verify:run -- run_manual_list_generation_sample
+```
+
+or
+
+```bash
+npm run verify:run -- .artifacts/runs/run_manual_list_generation_sample
+```

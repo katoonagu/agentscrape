@@ -32,6 +32,7 @@ import { resolveDesignSeed } from "../../generation/src/resolve-design-seed";
 import { buildRedesignBrief } from "../../generation/src/build-redesign-brief";
 import { buildDemoBuildPlan } from "../../generation/src/build-demo-build-plan";
 import { renderDesignBriefProjection } from "../../generation/src/render-design-brief";
+import { verifyRunOutput } from "./verify-run-output";
 
 interface RuntimeLeadContext {
   record: NormalizedLeadRecord;
@@ -52,7 +53,11 @@ interface RuntimeLeadContext {
   decisionArtifact?: DecisionArtifact;
 }
 
-export async function executeRun(requestPath: string, repoRoot: string): Promise<{ runId: string; runDir: string }> {
+export async function executeRun(
+  requestPath: string,
+  repoRoot: string,
+  options?: { replaceExistingRun?: boolean }
+): Promise<{ runId: string; runDir: string }> {
   const validator = new SchemaValidator(repoRoot);
   const rawRequest = await readJsonFile<unknown>(requestPath);
   const request = await validator.validate("run-request", rawRequest);
@@ -63,6 +68,7 @@ export async function executeRun(requestPath: string, repoRoot: string): Promise
   const runPaths = getRunPaths(repoRoot, runId);
   const createdAt = nowIso();
 
+  await prepareRunDirectory(runPaths.runDir, runId, options?.replaceExistingRun === true);
   await ensureDirectory(runPaths.runDir);
   await ensureDirectory(path.dirname(runPaths.runRequestPath));
   await writeJsonFile(runPaths.runRequestPath, request);
@@ -186,6 +192,28 @@ export async function executeRun(requestPath: string, repoRoot: string): Promise
     recalculateManifestCounts(manifest, runtimeLeads);
     await persistManifest(validator, runPaths.manifestPath, manifest);
     await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
+
+    const verification = await verifyRunOutput({
+      repoRoot,
+      target: runPaths.runDir
+    });
+
+    if (verification.status !== "pass") {
+      addAuditEvent(auditLog, {
+        eventType: "NOTE_ADDED",
+        actorType: "system",
+        notes: `Run output verification ${verification.status}: ${verification.issues.map((issue) => issue.message).join(" | ")}`
+      });
+      await persistAuditLog(validator, runPaths.auditLogPath, auditLog);
+    }
+
+    if (verification.status === "fail") {
+      manifest.runState = "FAILED_FINAL";
+      await persistManifest(validator, runPaths.manifestPath, manifest);
+      throw new Error(
+        `Run output verification failed for ${runId}: ${verification.issues.map((issue) => issue.message).join(" | ")}`
+      );
+    }
   } finally {
     if (browser) {
       await browser.close();
@@ -193,6 +221,21 @@ export async function executeRun(requestPath: string, repoRoot: string): Promise
   }
 
   return { runId, runDir: runPaths.runDir };
+}
+
+async function prepareRunDirectory(runDir: string, runId: string, replaceExistingRun: boolean): Promise<void> {
+  const runDirExists = await fs.pathExists(runDir);
+  if (!runDirExists) {
+    return;
+  }
+
+  if (!replaceExistingRun) {
+    throw new Error(
+      `Run directory already exists for ${runId}. Change requestId or rerun with --replace-existing-run.`
+    );
+  }
+
+  await fs.remove(runDir);
 }
 
 function assertRuntimeSupport(request: RunRequest): void {
