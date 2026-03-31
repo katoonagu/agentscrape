@@ -1,0 +1,73 @@
+{
+  "checklistId": "acceptance_stage0_8_2026_03_31",
+  "scope": {
+    "repo": "agentscrape",
+    "stage": "stage-8",
+    "target": "planning-phase-exit"
+  },
+  "generatedAt": "2026-03-31T16:45:00Z",
+  "items": [
+    {
+      "itemId": "stages-covered",
+      "category": "stage-coverage",
+      "description": "Stages 0 through 8 are documented without introducing a Stage 9 planning branch.",
+      "status": "pass",
+      "blocking": true
+    },
+    {
+      "itemId": "schemas-and-examples-aligned",
+      "category": "schema-example-integrity",
+      "description": "Support schemas and examples remain structurally aligned.",
+      "status": "pass",
+      "blocking": true
+    },
+    {
+      "itemId": "artifact-linkage-consistent",
+      "category": "artifact-linkage-integrity",
+      "description": "Business, operator and support artifacts remain traceable and role-consistent.",
+      "status": "pass",
+      "blocking": true
+    },
+    {
+      "itemId": "skills-source-intact",
+      "category": "skills-source-integrity",
+      "description": "Registry, install-plan and authored SKILL.md files remain aligned.",
+      "status": "pass",
+      "blocking": true
+    },
+    {
+      "itemId": "install-plan-discipline-clear",
+      "category": "install-plan-clarity",
+      "description": "Install-plan clearly distinguishes repo source from disposable installed copies.",
+      "status": "pass",
+      "blocking": true
+    },
+    {
+      "itemId": "templates-projection-only",
+      "category": "template-consistency",
+      "description": "Templates remain projection-only and do not introduce extra policy meaning.",
+      "status": "pass",
+      "blocking": true
+    },
+    {
+      "itemId": "boundary-drift-prevented",
+      "category": "no-silent-boundary-expansion",
+      "description": "Support artifacts and skills do not silently widen approved policy boundaries.",
+      "status": "pass",
+      "blocking": true
+    },
+    {
+      "itemId": "verification-warnings-visible",
+      "category": "auditability-and-truthfulness",
+      "description": "Verification readiness is explicit, but optional tooling warnings remain visible and are not hidden as a clean pass.",
+      "status": "warn",
+      "blocking": false
+    }
+  ],
+  "overallStatus": "ready-with-warnings",
+  "blockingItems": [],
+  "notes": [
+    "Repo is ready to enter verification and first implementation slice selection.",
+    "Optional tooling warnings remain documented and do not imply runtime unreadiness by themselves."
+  ]
+}

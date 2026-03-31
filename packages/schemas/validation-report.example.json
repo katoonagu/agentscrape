@@ -1,0 +1,71 @@
+{
+  "reportId": "validation_stage8_2026_03_31_01",
+  "scope": {
+    "repo": "agentscrape",
+    "stage": "stage-8",
+    "target": "planning-control-plane"
+  },
+  "generatedAt": "2026-03-31T16:40:00Z",
+  "summary": {
+    "overallStatus": "warn",
+    "totalChecks": 7,
+    "passed": 6,
+    "warned": 1,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "checkId": "schemas-draft7-parse",
+      "layer": "schema-validation",
+      "status": "pass",
+      "summary": "All reviewed support schemas parse as draft-07."
+    },
+    {
+      "checkId": "examples-validate",
+      "layer": "example-validation",
+      "status": "pass",
+      "summary": "Validation and install examples structurally match their schemas."
+    },
+    {
+      "checkId": "artifact-family-alignment",
+      "layer": "cross-artifact-consistency",
+      "status": "pass",
+      "summary": "Docs, schemas and examples agree on business, operator and support artifact roles."
+    },
+    {
+      "checkId": "template-contract-mapping",
+      "layer": "template-alignment",
+      "status": "pass",
+      "summary": "Validation and install templates remain projection-only and map to structured contracts."
+    },
+    {
+      "checkId": "registry-sourcepath-integrity",
+      "layer": "skill-registry-integrity",
+      "status": "pass",
+      "summary": "Every registry sourcePath resolves to an authored SKILL.md."
+    },
+    {
+      "checkId": "skill-frontmatter-minimum",
+      "layer": "skill-frontmatter-integrity",
+      "status": "pass",
+      "summary": "All authored skills keep valid minimal frontmatter with name and description."
+    },
+    {
+      "checkId": "format-tooling-gap",
+      "layer": "install-plan-sanity",
+      "status": "warn",
+      "summary": "Install-plan and validation checks are structurally ready, but optional format tooling gaps should remain visible during verification.",
+      "refs": [
+        "packages/schemas/validation-report.schema.json",
+        "packages/skills/install-plan.json"
+      ]
+    }
+  ],
+  "blockingIssues": [],
+  "warnings": [
+    "Optional format tooling gaps remain warnings and are not normalized into a full pass."
+  ],
+  "assumptions": [
+    "Repo readiness is limited to planning/control-plane verification readiness and does not imply runtime product readiness."
+  ]
+}

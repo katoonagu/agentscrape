@@ -1,0 +1,52 @@
+{
+  "planId": "skill_install_stage8_example_01",
+  "registryRef": "packages/skills/registry.json",
+  "targetAgent": "codex-cli-project-surface",
+  "installEntries": [
+    {
+      "skillId": "atomika-conversion",
+      "sourcePath": "packages/skills/atomika-conversion/SKILL.md",
+      "installScope": "project-local",
+      "preferredInstallMode": "symlink",
+      "verificationNotes": [
+        "Confirm installed content resolves to the authored SKILL.md.",
+        "Confirm no local edits exist only in the installed copy."
+      ]
+    },
+    {
+      "skillId": "copy-guidelines",
+      "sourcePath": "packages/skills/copy-guidelines/SKILL.md",
+      "installScope": "project-local",
+      "preferredInstallMode": "symlink",
+      "verificationNotes": [
+        "Confirm sourcePath matches registry entry.",
+        "Confirm frontmatter remains identical to repo-authored source."
+      ]
+    },
+    {
+      "skillId": "qa-review",
+      "sourcePath": "packages/skills/qa-review/SKILL.md",
+      "installScope": "project-local",
+      "preferredInstallMode": "symlink",
+      "verificationNotes": [
+        "Confirm installed copy remains a disposable operational mirror of repo source.",
+        "Confirm re-sync path is available if drift is found."
+      ]
+    }
+  ],
+  "syncPolicy": {
+    "sourceOfTruth": "repo-authored-source",
+    "installedCopyStatus": "disposable-operational-copy",
+    "driftResolution": "reinstall-from-source",
+    "editSurface": "repo-only"
+  },
+  "verificationChecks": [
+    "Resolve every install entry through registry before install.",
+    "Verify installed copies against source after install.",
+    "Treat drift as reinstall/re-sync issue rather than a reason to edit installed copies."
+  ],
+  "notes": [
+    "This install plan covers only first-party authored skills.",
+    "The plan is operational guidance, not runtime machine state."
+  ]
+}

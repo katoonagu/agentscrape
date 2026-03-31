@@ -1,14 +1,16 @@
 # agentscrape
 
-`agentscrape` - control plane / planning repository для internal agent pipeline, который обрабатывает website leads: intake, qualification, decisioning по demo-ветке, demo generation orchestration, preview artifact linkage, review dossier preparation, operator-side control workflow и first-party skills source authoring.
+`agentscrape` - control plane / planning repository для internal agent pipeline, который обрабатывает website leads: intake, qualification, decisioning по demo-ветке, demo generation orchestration, preview artifact linkage, review dossier preparation, operator-side control workflow, first-party skills source authoring и финальный hardening / validation-readiness layer.
 
-Репозиторий не хранит runtime implementation pipeline и не хранит generated builds в git. Здесь фиксируются границы v1, ADR, state machine, decision logic, preset/data layer, generation/review handoff contracts, operator control-plane contracts и authored internal skills для project-specific guidance layer.
+Репозиторий не хранит runtime implementation pipeline и не хранит generated builds в git. Здесь фиксируются границы v1, ADR, state machine, decision logic, preset/data layer, generation/review handoff contracts, operator control-plane contracts, authored internal skills и support artifacts для verification readiness.
 
-Stage `3` зафиксировал preset system + design seed layer. Stage `4` добавил demo generation orchestration layer. Stage `5` зафиксировал preview deployment + review dossier + artifact linkage. Stage `6` добавил operator CLI workflow layer. Stage `7` оформляет first-party skills source layer: repo хранит authored internal skills, а не обязательно installed runtime copies.
+Stage `3` зафиксировал preset system + design seed layer. Stage `4` добавил demo generation orchestration layer. Stage `5` зафиксировал preview deployment + review dossier + artifact linkage. Stage `6` добавил operator CLI workflow layer. Stage `7` оформил first-party skills source layer. Stage `8` завершает planning/hardening слой: он фиксирует validation readiness, install operationalization и финальный acceptance checklist перед repo-wide verification.
+
+После Stage `8` repo должен переходить к verification и выбору первого implementation slice, а не к новому docs-only overplanning.
 
 ## Document index
 
-- [docs/roadmap.md](docs/roadmap.md) - stages `0..8`, current/next статус и roadmap placeholders.
+- [docs/roadmap.md](docs/roadmap.md) - stages `0..8`, current статус и note про переход к verification.
 - [docs/tz/00-scope-v1.md](docs/tz/00-scope-v1.md) - границы v1 и подтвержденный scope.
 - [docs/tz/01-state-machine.md](docs/tz/01-state-machine.md) - run-level и lead-level state machine.
 - [docs/tz/02-entity-model.md](docs/tz/02-entity-model.md) - сущности, ключи и dedupe model.
@@ -33,7 +35,11 @@ Stage `3` зафиксировал preset system + design seed layer. Stage `4` 
 - [docs/tz/21-skill-contracts-and-activation.md](docs/tz/21-skill-contracts-and-activation.md) - anatomy, activation model и bounded skill contract.
 - [docs/tz/22-skill-interaction-model.md](docs/tz/22-skill-interaction-model.md) - interaction order, non-overlap rules и conflict resolution для internal/external skills.
 - [docs/tz/23-skill-source-and-install-layout.md](docs/tz/23-skill-source-and-install-layout.md) - source/install layout и local authoring workflow для project skills.
-- [docs/adr/](docs/adr/) - ADR по границам v1, primary entity, generated builds, approval gates, presets, generation boundary, dossier truth model, operator action normalization и first-party skills source model.
+- [docs/tz/24-validation-hardening-and-readiness.md](docs/tz/24-validation-hardening-and-readiness.md) - финальный hardening stage, validation layers и readiness model.
+- [docs/tz/25-skill-install-and-sync-operationalization.md](docs/tz/25-skill-install-and-sync-operationalization.md) - install/sync discipline для authored internal skills.
+- [docs/tz/26-cross-artifact-consistency-rules.md](docs/tz/26-cross-artifact-consistency-rules.md) - cross-artifact consistency, naming и alignment rules.
+- [docs/tz/27-stage-0-8-acceptance-checklist.md](docs/tz/27-stage-0-8-acceptance-checklist.md) - финальный checklist planning phase и handoff к verification.
+- [docs/adr/](docs/adr/) - ADR по границам v1, primary entity, generated builds, approval gates, presets, generation boundary, dossier truth model, operator action normalization, first-party skills source model и финальному hardening-before-implementation rule.
 - [packages/schemas/](packages/schemas/) - JSON Schema draft-07 и example payloads.
 - [packages/schemas/design-seed.schema.json](packages/schemas/design-seed.schema.json) - schema для structured design seed.
 - [packages/schemas/redesign-brief.schema.json](packages/schemas/redesign-brief.schema.json) - schema для redesign brief handoff artifact.
@@ -46,13 +52,19 @@ Stage `3` зафиксировал preset system + design seed layer. Stage `4` 
 - [packages/schemas/operator-override.schema.json](packages/schemas/operator-override.schema.json) - bounded manual override artifact.
 - [packages/schemas/operator-audit-log.schema.json](packages/schemas/operator-audit-log.schema.json) - canonical operator/system audit trail schema.
 - [packages/schemas/skill-registry.schema.json](packages/schemas/skill-registry.schema.json) - support schema для authored internal skill registry.
+- [packages/schemas/validation-report.schema.json](packages/schemas/validation-report.schema.json) - support schema для structured validation report.
+- [packages/schemas/acceptance-checklist.schema.json](packages/schemas/acceptance-checklist.schema.json) - support schema для final planning-phase acceptance checklist.
+- [packages/schemas/skill-install-plan.schema.json](packages/schemas/skill-install-plan.schema.json) - support schema для operational skill install plan.
 - [packages/niche-presets/](packages/niche-presets/) - niche preset data files, global defaults и preset schema.
 - [packages/niche-presets/_schema/niche-preset.schema.json](packages/niche-presets/_schema/niche-preset.schema.json) - schema для YAML preset files.
 - [packages/skills/](packages/skills/) - authored first-party skill source layer.
-- [packages/skills/README.md](packages/skills/README.md) - skill source layer rules, internal skill list и install notes.
+- [packages/skills/README.md](packages/skills/README.md) - skill source layer rules, internal skill list и install operationalization notes.
+- [packages/skills/install-plan.json](packages/skills/install-plan.json) - intended install/sync operationalization for authored internal skills.
 - [templates/design-brief/](templates/design-brief/) - human-readable template layer для downstream redesign brief.
 - [templates/review-dossier/](templates/review-dossier/) - human-readable projection layer для review dossier.
 - [templates/operator-approval/](templates/operator-approval/) - human-readable projection layer для approval request / response artifacts.
+- [templates/validation-report/](templates/validation-report/) - human-readable projection layer для validation reporting.
+- [templates/install-plan/](templates/install-plan/) - human-readable projection layer для install-plan review.
 
 ## Internal skills source layer
 
@@ -63,7 +75,7 @@ Stage `3` зафиксировал preset system + design seed layer. Stage `4` 
 
 ## Current repository role
 
-- Канонический источник product/system decisions для Stages `0..7`.
-- Источник именованных enum'ов, reason codes, manifest contracts, preset data rules, generation handoff boundaries, preview/review linkage, operator control-plane contracts и authored first-party skills.
-- Основа для последующего implementation planning без dashboard, anti-theft, полноценной CMS/CRM логики и provider-specific deploy adapters.
-- Источник human-editable preset data, design seed guidance, generation orchestration contracts, preview records, review dossier contracts, operator intent / approval / audit artifacts и project-specific skill source files, но не runtime adapters, не codegen config и не production design system.
+- Канонический источник product/system decisions для Stages `0..8`.
+- Источник именованных enum'ов, reason codes, manifest contracts, preset data rules, generation handoff boundaries, preview/review linkage, operator control-plane contracts, authored first-party skills и support artifacts для readiness/verification.
+- Основа для последующего verification и выбора первого implementation slice без dashboard, anti-theft, полноценной CMS/CRM логики и provider-specific deploy adapters.
+- Источник human-editable preset data, design seed guidance, generation orchestration contracts, preview records, review dossier contracts, operator intent / approval / audit artifacts, project-specific skill source files и support validation/install artifacts, но не runtime adapters, не codegen config и не production design system.

@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentscrape.local/schemas/acceptance-checklist.schema.json",
+  "title": "AcceptanceChecklist",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "checklistId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "repo",
+        "stage",
+        "target"
+      ]
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "stage-coverage",
+              "schema-example-integrity",
+              "artifact-linkage-integrity",
+              "skills-source-integrity",
+              "install-plan-clarity",
+              "template-consistency",
+              "no-silent-boundary-expansion",
+              "auditability-and-truthfulness"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not-applicable"
+            ]
+          },
+          "blocking": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "itemId",
+          "category",
+          "description",
+          "status",
+          "blocking"
+        ]
+      }
+    },
+    "overallStatus": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "ready-with-warnings",
+        "blocked"
+      ]
+    },
+    "blockingItems": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "checklistId",
+    "scope",
+    "generatedAt",
+    "items",
+    "overallStatus",
+    "blockingItems",
+    "notes"
+  ]
+}
