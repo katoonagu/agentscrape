@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Определить contracts для planning/manifests/control-plane слоя, чтобы subsequent implementation использовал стабильные JSON payloads для lead intake, qualification output, decision output, design seed resolution, generation handoff, preview deployment record, review dossier и operator-side control artifacts.
+Определить contracts для planning/manifests/control-plane слоя, чтобы subsequent implementation использовал стабильные JSON payloads для lead intake, qualification output, decision output, design seed resolution, generation handoff, preview deployment record, review dossier, operator-side control artifacts и support registry для authored internal skills.
 
 ## Approved decisions
 
@@ -22,12 +22,15 @@
   - `packages/schemas/approval-response.schema.json`
   - `packages/schemas/operator-override.schema.json`
   - `packages/schemas/operator-audit-log.schema.json`
+  - `packages/schemas/skill-registry.schema.json`
 - Все schema files используют JSON Schema draft-07.
 - Schemas описывают planning/manifests/control-plane слой, а не runtime implementation internals.
+- `skill-registry.schema.json` является support schema для authored internal skills и не становится core business artifact.
 - Required fields должны быть только там, где без них contract теряет смысл.
-- Generation-, preview-, review- и operator-facing contracts остаются planning/data artifacts и не превращаются в runtime engine config, worker payloads, CLI parser internals, provider-specific deployment internals или renderer layout specs.
+- Generation-, preview-, review-, operator-facing и skill-registry contracts остаются planning/data artifacts и не превращаются в runtime engine config, worker payloads, CLI parser internals, provider-specific deployment internals или renderer layout specs.
 - Structured review dossier остается source of truth для review layer.
 - Structured operator artifacts остаются source of truth для operator intent, approvals, overrides и auditability; freeform CLI text и templates допустимы только как projection / transport layer.
+- Internal skills являются assistive layer поверх contracts/docs/schemas и не заменяют source-of-truth artifacts.
 
 ## Rules / logic
 
@@ -202,11 +205,23 @@
   - counts;
   - external artifact refs.
 
+### `skill-registry.schema.json`
+
+- Описывает authored internal skill inventory.
+- Должен покрывать:
+  - authored skill identity;
+  - repo source path;
+  - lifecycle status;
+  - purpose и triggers;
+  - upstream / downstream artifact touchpoints;
+  - explicit boundaries и notes.
+- Не должен описывать runtime install paths, plugin-manager behavior или execution state.
+
 ### Examples
 
 - Example files рядом со schemas должны быть реалистичными и парситься against their schemas.
 - Examples не должны содержать production secrets, токены или реальные credentials.
-- Examples для preview, review и operator layer должны показывать traceable artifact linkage и не притворяться runtime implementation details.
+- Examples для preview, review, operator layer и skill registry должны показывать traceable linkage и не притворяться runtime implementation details.
 
 ## Edge cases
 
@@ -219,6 +234,7 @@
 - `RunManifest` может ссылаться на mixed outcomes within one run.
 - `RedesignBrief` и `DemoBuildPlan` недопустимы для `SKIP` и `AUDIT_ONLY`.
 - `ReviewDossier` не должен кодировать PDF layout, markdown rendering rules или invented after-state facts.
+- Installed runtime copies skills могут жить вне repo и path-wise не совпадать с authored source files; source of truth для authored skill inventory остается repo registry.
 
 ## Acceptance criteria
 
@@ -226,7 +242,8 @@
 - Examples structurally match their schemas.
 - `ReasonCode`, `PipelineDecision`, `WorkMode` и pipeline states не расходятся между docs и schemas.
 - Preview/review/operator contracts явно отделены от runtime implementation.
-- В contracts отсутствуют storage/build details, противоречащие Stage `0..6`.
+- В contracts отсутствуют storage/build details, противоречащие Stage `0..7`.
+- Из документа явно видно, что internal skills и support registry не подменяют core business artifacts как source of truth.
 
 ## Out of scope
 
@@ -235,3 +252,4 @@
 - Runtime prompt assembly, codegen config и provider-specific generation/deploy settings.
 - CLI parser implementation, terminal UX rendering и notification integrations.
 - PDF renderer, markdown renderer и binary artifact generation.
+- Runtime skill installer, skill sync automation и install-path operationalization.

@@ -1,0 +1,101 @@
+{
+  "registryVersion": "1.0.0",
+  "skills": [
+    {
+      "skillId": "atomika-conversion",
+      "sourcePath": "packages/skills/atomika-conversion/SKILL.md",
+      "status": "active",
+      "purpose": "Translate qualification, decision, design-seed and redesign-brief into bounded redesign direction for buildable website demo cases.",
+      "triggers": [
+        "buildable decision needs bounded redesign direction",
+        "page scope or section emphasis must stay defensible",
+        "conversion guidance is needed without widening policy boundaries"
+      ],
+      "upstreamArtifacts": [
+        "qualification",
+        "decision",
+        "design-seed",
+        "redesign-brief"
+      ],
+      "downstreamArtifacts": [
+        "redesign-brief",
+        "demo-build-plan"
+      ],
+      "boundaries": [
+        "no fake CMS or CRM logic",
+        "preserve external flow",
+        "approved editable scope only",
+        "no fabricated claims",
+        "no silent page-scope expansion"
+      ],
+      "notes": [
+        "Do not use for SKIP or AUDIT_ONLY as buildable conversion proposals.",
+        "Outputs remain assistive guidance and do not replace structured artifacts."
+      ]
+    },
+    {
+      "skillId": "copy-guidelines",
+      "sourcePath": "packages/skills/copy-guidelines/SKILL.md",
+      "status": "active",
+      "purpose": "Provide concise, concrete and evidence-based service-business copy guidance within already bounded redesign scope.",
+      "triggers": [
+        "headlines, CTA or trust copy needs project-specific wording rules",
+        "service-business copy must stay factual and compact",
+        "source material is partial and placeholders or assumptions need explicit handling"
+      ],
+      "upstreamArtifacts": [
+        "qualification",
+        "decision",
+        "design-seed",
+        "redesign-brief"
+      ],
+      "downstreamArtifacts": [
+        "redesign-brief",
+        "demo-build-plan",
+        "review-dossier"
+      ],
+      "boundaries": [
+        "truthfulness only",
+        "no fabricated reviews or guarantees",
+        "no fabricated prices, licenses or staff",
+        "no product or architecture decisions",
+        "no scope expansion through copy"
+      ],
+      "notes": [
+        "Use placeholders, assumptions or approval triggers when evidence is insufficient.",
+        "Keep wording compatible with preserved external flow."
+      ]
+    },
+    {
+      "skillId": "qa-review",
+      "sourcePath": "packages/skills/qa-review/SKILL.md",
+      "status": "active",
+      "purpose": "Support before/after analysis and structured review dossier preparation for audit-only and preview-backed-demo cases.",
+      "triggers": [
+        "review dossier needs evidence-backed findings",
+        "before-only and before/after findings must be kept separate",
+        "implemented vs recommended wording needs explicit discipline"
+      ],
+      "upstreamArtifacts": [
+        "qualification",
+        "decision",
+        "preview-manifest",
+        "review-dossier"
+      ],
+      "downstreamArtifacts": [
+        "review-dossier"
+      ],
+      "boundaries": [
+        "structured dossier is source of truth",
+        "no invented implemented improvements",
+        "respect audit-only vs preview-backed distinction",
+        "preserve external-flow handling semantics",
+        "evidence required for factual review claims"
+      ],
+      "notes": [
+        "Use issue labels such as clarity, trust, conversion-friction, information-architecture and truthfulness.",
+        "Do not describe preview-backed changes where no after evidence exists."
+      ]
+    }
+  ]
+}
